@@ -35,8 +35,8 @@ async def unload(ctx, extension):
 
 
 @bot.command()
-async def reload(ctx, extension):
-    if extension == "*":
+async def reload(ctx, *extensions):
+    if extensions == "*":
         for cmd in cmds:
             bot.unload_extension(f"cmds.{cmd}")
             bot.load_extension(f"cmds.{cmd}")
@@ -44,8 +44,14 @@ async def reload(ctx, extension):
         await ctx.channel.purge(limit=len(cmds))
         await ctx.send("```已重新載入所有指令```")
     else:
-        bot.reload_extension(f"cmds.{extension}")
-        await ctx.send(f"```已重新載入{extension}```")
+        for extension in extensions:
+            bot.reload_extension(f"cmds.{extension}")
+            await ctx.send(f"```已重新載入{extension}```")
+
+        extensions_len = len(extensions)
+        if extensions_len > 1:
+            await ctx.channel.purge(limit=extensions_len)
+            await ctx.send(f"```已重新載入{', '.join(extensions)}```")
 
 
 for cmd in cmds:

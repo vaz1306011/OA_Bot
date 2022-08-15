@@ -27,7 +27,12 @@ class React(Cog_Extension):
 
     @commands.command()
     async def test(self, ctx):
-        self.ctx_send(ctx, "test", "red")
+        await self.ctx_send(ctx, "red", "r")
+        await self.ctx_send(ctx, "orange", "o")
+        await self.ctx_send(ctx, "yellow", "y")
+        await self.ctx_send(ctx, "green", "g")
+        await self.ctx_send(ctx, "lightGreen", "lg")
+        await self.ctx_send(ctx, "blue", "b")
 
 
 def setup(bot):
