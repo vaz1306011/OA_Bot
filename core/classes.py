@@ -8,7 +8,7 @@ class Cog_Extension(commands.Cog):
 
     async def ctx_send(self, ctx, msg, color=None):
         '''
-        傳送訊息 
+        傳送系統訊息
 
         一次只能傳送一行訊息,否則某些顏色顯示會出錯
         '''

@@ -2,6 +2,7 @@ import json
 
 from discord.ext import commands
 
+from bot import bot
 from core.classes import Cog_Extension
 
 with open("setting.json", "r", encoding="utf8") as jfile:
@@ -21,14 +22,22 @@ class Event(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
+        content = msg.content
+
         if msg.author.bot:
             return
 
-        if "笑" in msg.content:
+        if content.startswith(bot.command_prefix):
+            return
+
+        if "笑" in content:
             await msg.channel.send("笑死")
 
-        if "好" in msg.content:
+        if "好" in content:
             await msg.channel.send("好耶")
+
+        if "確實" in content or "雀石" in content:
+            await msg.channel.send("雀石")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
@@ -41,8 +50,10 @@ class Event(Cog_Extension):
             await send("權限不足")
         elif isinstance(error, commands.CommandOnCooldown):
             await send("指令過於頻繁")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
-            await ctx.send(error)
+            await ctx.send(str(error))
 
 
 def setup(bot):

@@ -1,9 +1,9 @@
 import json
 import random
 
-import discord
 from discord.ext import commands
 
+from bot import is_owner
 from core.classes import Cog_Extension
 
 with open("setting.json", "r", encoding="utf8") as jfile:
@@ -22,8 +22,19 @@ class React(Cog_Extension):
         await ctx.send(msg)
 
     @commands.command()  # 清理訊息指令
+    @is_owner()
     async def clean(self, ctx, num: int):
         await ctx.channel.purge(limit=num + 1)
+
+    @commands.command()
+    @is_owner()
+    async def myid(self, ctx):
+        await ctx.send(f"{ctx.author.id}")
+
+    @commands.command()
+    @is_owner()
+    async def channlid(self, ctx):
+        await ctx.send(f"{ctx.channel.id}")
 
     @commands.command()
     async def test(self, ctx):
