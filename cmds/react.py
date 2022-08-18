@@ -3,8 +3,9 @@ import random
 
 from discord.ext import commands
 
-from bot import is_owner
+from core.check import is_owner
 from core.classes import Cog_Extension
+from core.tools import ctx_send
 
 with open("setting.json", "r", encoding="utf8") as jfile:
     jdata = json.load(jfile)
@@ -38,12 +39,12 @@ class React(Cog_Extension):
 
     @commands.command()
     async def test(self, ctx):
-        await self.ctx_send(ctx, "red", "r")
-        await self.ctx_send(ctx, "orange", "o")
-        await self.ctx_send(ctx, "yellow", "y")
-        await self.ctx_send(ctx, "green", "g")
-        await self.ctx_send(ctx, "lightGreen", "lg")
-        await self.ctx_send(ctx, "blue", "b")
+        await ctx_send(ctx, "red", "r")
+        await ctx_send(ctx, "orange", "o")
+        await ctx_send(ctx, "yellow", "y")
+        await ctx_send(ctx, "green", "g")
+        await ctx_send(ctx, "lightGreen", "lg")
+        await ctx_send(ctx, "blue", "b")
 
 
 def setup(bot):
