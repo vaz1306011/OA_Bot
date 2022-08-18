@@ -13,3 +13,8 @@ class Main(Cog_Extension):
 def setup(bot):
     print("已讀取Main")
     bot.add_cog(Main(bot))
+
+
+def teardown(bot):
+    print("已移除Main")
+    bot.remove_cog("Main")

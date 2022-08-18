@@ -61,3 +61,8 @@ class Event(Cog_Extension):
 def setup(bot):
     print("已讀取Event")
     bot.add_cog(Event(bot))
+
+
+def teardown(bot):
+    print("已移除Event")
+    bot.remove_cog("Event")

@@ -13,7 +13,7 @@ class Task(Cog_Extension):
 
         async def interval():  # 間隔時間公告
             await self.bot.wait_until_ready()
-            self.channel = self.bot.get_channel(int(jdata["test-bot頻道"]))
+            self.channel = self.bot.get_channel(jdata["test-bot頻道"])
             while not self.bot.is_closed():
                 await self.channel.send("")
                 await asyncio.sleep(5)
@@ -24,3 +24,8 @@ class Task(Cog_Extension):
 def setup(bot):
     print("已讀取Task")
     bot.add_cog(Task(bot))
+
+
+def teardown(bot):
+    print("已移除Task")
+    bot.remove_cog("Task")

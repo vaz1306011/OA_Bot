@@ -50,3 +50,8 @@ class React(Cog_Extension):
 def setup(bot):
     print("已讀取React")
     bot.add_cog(React(bot))
+
+
+def teardown(bot):
+    print("已移除React")
+    bot.remove_cog("React")
