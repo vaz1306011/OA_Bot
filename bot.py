@@ -27,9 +27,9 @@ def is_owner():
 
 @bot.event
 async def on_ready():
-    import datetime
+    from datetime import datetime
 
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # channel = bot.get_channel(jdata["test-bot頻道"])
     # await channel.send("OA_Bot上線")
     print(f"[{now}] - OA_Bot上線")

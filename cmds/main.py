@@ -10,4 +10,5 @@ class Main(Cog_Extension):
 
 
 def setup(bot):
+    print("已讀取Main")
     bot.add_cog(Main(bot))

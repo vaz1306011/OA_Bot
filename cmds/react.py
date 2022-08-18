@@ -47,4 +47,5 @@ class React(Cog_Extension):
 
 
 def setup(bot):
+    print("已讀取React")
     bot.add_cog(React(bot))

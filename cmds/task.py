@@ -22,4 +22,5 @@ class Task(Cog_Extension):
 
 
 def setup(bot):
+    print("已讀取Task")
     bot.add_cog(Task(bot))

@@ -2,7 +2,6 @@ import json
 
 from discord.ext import commands
 
-from bot import bot
 from core.classes import Cog_Extension
 
 with open("setting.json", "r", encoding="utf8") as jfile:
@@ -27,7 +26,7 @@ class Event(Cog_Extension):
         if msg.author.bot:
             return
 
-        if content.startswith(bot.command_prefix):
+        if content.startswith(self.bot.command_prefix):
             return
 
         if "笑" in content:
@@ -57,4 +56,5 @@ class Event(Cog_Extension):
 
 
 def setup(bot):
+    print("已讀取Event")
     bot.add_cog(Event(bot))
