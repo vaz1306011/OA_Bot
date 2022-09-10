@@ -4,8 +4,10 @@ import os
 import discord
 from discord.ext import commands
 
-with open("setting.json", "r", encoding="utf8") as jfile:
+with open("data.json", "r", encoding="utf8") as jfile:
     data = json.load(jfile)
+id_ = data["id"]
+channel = data["channel"]
 
 bot = commands.Bot(command_prefix="~")
 
@@ -20,7 +22,7 @@ async def on_ready():
     from datetime import datetime
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # channel = bot.get_channel(jdata["test-bot頻道"])
+    # channel = bot.get_channel(channel["test-bot頻道"])
     # await channel.send("OA_Bot上線")
     print(f"[{now}] - OA_Bot上線")
 

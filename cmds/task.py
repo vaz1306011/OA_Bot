@@ -1,10 +1,9 @@
 import asyncio
-import json
+
+import discord
+from discord.ext import commands
 
 from core.classes import Cog_Extension
-
-with open("setting.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
 
 
 class Task(Cog_Extension):
@@ -13,7 +12,7 @@ class Task(Cog_Extension):
 
         async def interval():  # 間隔時間公告
             await self.bot.wait_until_ready()
-            self.channel = self.bot.get_channel(jdata["test-bot頻道"])
+            self.channel = self.bot.get_channel(self.channel["test-bot頻道"])
             while not self.bot.is_closed():
                 await self.channel.send("")
                 await asyncio.sleep(5)
