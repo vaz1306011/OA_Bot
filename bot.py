@@ -1,13 +1,11 @@
 import json
 import os
 
+import discord
 from discord.ext import commands
 
-from core.check import is_owner
-from core.tools import ctx_send
-
 with open("setting.json", "r", encoding="utf8") as jfile:
-    jdata = json.load(jfile)
+    data = json.load(jfile)
 
 bot = commands.Bot(command_prefix="~")
 
@@ -26,55 +24,12 @@ async def on_ready():
     # await channel.send("OA_Bot上線")
     print(f"[{now}] - OA_Bot上線")
 
-
-@bot.command()
-@is_owner()
-async def load(ctx, extension):
-    bot.load_extension(f"cmds.{extension}")
-    await ctx_send(ctx, f"已載入{extension}")
-
-
-@bot.command()
-@is_owner()
-async def unload(ctx, extension):
-    bot.unload_extension(f"cmds.{extension}")
-    await ctx_send(ctx, f"已卸載{extension}")
-
-
-@bot.command()
-@is_owner()
-async def reload(ctx, *extensions):
-    if "*" in extensions:
-        for cmd in cmds:
-            bot.unload_extension(f"cmds.{cmd}")
-            bot.load_extension(f"cmds.{cmd}")
-            await ctx_send(ctx, f"已重新載入{cmd}")
-        await ctx.channel.purge(limit=len(cmds))
-        await ctx_send(ctx, "已重新載入所有指令")
-    else:
-        extensions = set(extensions)
-        error_list = set()
-        for extension in extensions:
-            try:
-                bot.reload_extension(f"cmds.{extension}")
-                await ctx_send(ctx, f"已重新載入{extension}")
-            except commands.ExtensionNotLoaded:
-                error_list.add(extension)
-                await ctx_send(ctx, f"<{extension}不存在或無法載入>")
-
-        extensions_len = len(extensions)
-        if extensions_len > 1:
-            extensions = extensions - error_list
-            await ctx.channel.purge(limit=extensions_len)
-            reload_msg = f"已重新載入{', '.join(extensions)}    " if extensions else ""
-            cant_reload_msg = (
-                ("<" + ", ".join(error_list) + "無法載入>") if error_list else ""
-            )
-            await ctx_send(ctx, f"{reload_msg}{cant_reload_msg}")
+    game = discord.Game(name="吸娜娜奇")
+    await bot.change_presence(status=discord.Status.idle, activity=game)
 
 
 if __name__ == "__main__":
     for cmd in cmds:
         bot.load_extension(f"cmds.{cmd}")
 
-    bot.run(jdata["TOKEN"])
+    bot.run(data["TOKEN"])
