@@ -67,11 +67,11 @@ class Event(Cog_Extension):
             await send(f"發生錯誤 <{e}>")
 
 
-def setup(bot):
+async def setup(bot):
     print("已讀取Event")
-    bot.add_cog(Event(bot))
+    await bot.add_cog(Event(bot))
 
 
-def teardown(bot):
+async def teardown(bot):
     print("已移除Event")
-    bot.remove_cog("Event")
+    await bot.remove_cog("Event")

@@ -11,13 +11,13 @@ class Main(Cog_Extension):
     @commands.command(brief="載入模塊")
     @is_owner()
     async def load(self, ctx, extension):
-        self.bot.load_extension(f"cmds.{extension}")
+        await self.bot.load_extension(f"cmds.{extension}")
         await ctx_send(ctx, f"已載入{extension}")
 
     @commands.command(brief="卸載模塊")
     @is_owner()
     async def unload(self, ctx, extension):
-        self.bot.unload_extension(f"cmds.{extension}")
+        await self.bot.unload_extension(f"cmds.{extension}")
         await ctx_send(ctx, f"已卸載{extension}")
 
     @commands.command(brief="重新載入模塊")
@@ -25,8 +25,8 @@ class Main(Cog_Extension):
     async def reload(self, ctx, *extensions):
         if "*" in extensions:
             for cmd in cmds:
-                self.bot.unload_extension(f"cmds.{cmd}")
-                self.bot.load_extension(f"cmds.{cmd}")
+                await self.bot.unload_extension(f"cmds.{cmd}")
+                await self.bot.load_extension(f"cmds.{cmd}")
                 await ctx_send(ctx, f"已重新載入{cmd}")
             await ctx.channel.purge(limit=len(cmds))
             await ctx_send(ctx, "已重新載入所有指令")
@@ -35,7 +35,7 @@ class Main(Cog_Extension):
             error_list = set()
             for extension in extensions:
                 try:
-                    self.bot.reload_extension(f"cmds.{extension}")
+                    await self.bot.reload_extension(f"cmds.{extension}")
                     await ctx_send(ctx, f"已重新載入{extension}")
                 except commands.ExtensionNotLoaded:
                     error_list.add(extension)
@@ -75,11 +75,11 @@ class Main(Cog_Extension):
         await ctx_send(ctx, f"{round(self.bot.latency*1000)}毫秒")
 
 
-def setup(bot):
+async def setup(bot):
     print("已讀取Main")
-    bot.add_cog(Main(bot))
+    await bot.add_cog(Main(bot))
 
 
-def teardown(bot):
+async def teardown(bot):
     print("已移除Main")
-    bot.remove_cog("Main")
+    await bot.remove_cog("Main")

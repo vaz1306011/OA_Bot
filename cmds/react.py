@@ -40,11 +40,11 @@ class React(Cog_Extension):
         await ctx_send(ctx, f"{ctx.channel.id}")
 
 
-def setup(bot):
+async def setup(bot):
     print("已讀取React")
-    bot.add_cog(React(bot))
+    await bot.add_cog(React(bot))
 
 
-def teardown(bot):
+async def teardown(bot):
     print("已移除React")
-    bot.remove_cog("React")
+    await bot.remove_cog("React")

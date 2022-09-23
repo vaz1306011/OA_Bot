@@ -21,11 +21,11 @@ class Test(Cog_Extension):
         await self.bot.change_presence(status=discord.Status.idle, activity=game)
 
 
-def setup(bot):
+async def setup(bot):
     print("已讀取Test")
-    bot.add_cog(Test(bot))
+    await bot.add_cog(Test(bot))
 
 
-def teardown(bot):
+async def teardown(bot):
     print("已移除Test")
-    bot.remove_cog("Test")
+    await bot.remove_cog("Test")

@@ -20,11 +20,11 @@ class Task(Cog_Extension):
         # self.bg_task = self.bot.loop.create_task(interval())
 
 
-def setup(bot):
+async def setup(bot):
     print("已讀取Task")
-    bot.add_cog(Task(bot))
+    await bot.add_cog(Task(bot))
 
 
-def teardown(bot):
+async def teardown(bot):
     print("已移除Task")
-    bot.remove_cog("Task")
+    await bot.remove_cog("Task")

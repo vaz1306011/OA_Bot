@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 
@@ -9,7 +10,7 @@ with open("data.json", "r", encoding="utf8") as jfile:
 id_ = data["id"]
 channel = data["channel"]
 
-bot = commands.Bot(command_prefix="~")
+bot = commands.Bot(command_prefix="~", intents=discord.Intents.all())
 
 cmds = []
 for filename in os.listdir("./cmds"):
@@ -30,8 +31,15 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.idle, activity=game)
 
 
-if __name__ == "__main__":
+async def load_extensions():
     for cmd in cmds:
-        bot.load_extension(f"cmds.{cmd}")
+        await bot.load_extension(f"cmds.{cmd}")
 
-    bot.run(data["TOKEN"])
+
+async def main():
+    await load_extensions()
+    await bot.start(data["TOKEN"])
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
