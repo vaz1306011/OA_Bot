@@ -2,9 +2,13 @@
     "TOKEN": "Nzk5NDY3MjY1MDEwNTY1MTIw.G6AUwh.grKxCUBMe0FJjT3NqBM5m63kssEDdPgk3IJWdg",
     "id": {
         "owner_ids": [
-            449546373445058563
+            449546373445058563,
+            437200686019772416
         ],
         "Sofia": 339036838842990592
+    },
+    "role": {
+        "test": 1025471781886242886
     },
     "channel": {
         "test-bot頻道": 799504648490844181,
