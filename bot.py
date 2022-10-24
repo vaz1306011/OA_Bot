@@ -3,7 +3,7 @@ import json
 import os
 
 import discord
-from discord.ext import commands
+from discord.ext.commands import Bot
 
 with open("data.json", "r", encoding="utf8") as jfile:
     data = json.load(jfile)
@@ -15,9 +15,7 @@ for filename in os.listdir("./cmds"):
     if filename.endswith(".py"):
         cmds.append(filename[:-3])
 
-bot = commands.Bot(
-    command_prefix="~", intents=discord.Intents.all(), description="老屁股機器人"
-)
+bot = Bot(command_prefix="~", intents=discord.Intents.all(), description="老屁股機器人")
 
 
 @bot.event

@@ -43,19 +43,19 @@ class Test(Cog_Extension):
 
         async def btn1_callback(interaction: Interaction):
             await interaction.response.defer()
-            await interaction.channel.send(f"{interaction.user.mention} 先不要藍媽媽")
-
-        async def btn2_callback(interaction: Interaction):
-            await interaction.response.defer()
             await interaction.channel.send(f"{interaction.user.mention} 先不要白媽媽")
 
         async def btn2_callback(interaction: Interaction):
+            await interaction.response.defer()
+            await interaction.channel.send(f"{interaction.user.mention} 先不要藍媽媽")
+
+        async def btn3_callback(interaction: Interaction):
             await interaction.response.defer()
             await interaction.channel.send(f"{interaction.user.mention} 先不要紅媽媽")
 
         btn1.callback = btn1_callback
         btn2.callback = btn2_callback
-        btn3.callback = btn2_callback
+        btn3.callback = btn3_callback
 
         view = View(timeout=None)
         view.add_item(btn1)

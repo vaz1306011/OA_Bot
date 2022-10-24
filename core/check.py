@@ -2,8 +2,6 @@ import json
 
 from discord.ext import commands
 
-from core.tools import ctx_send
-
 with open("data.json", "r", encoding="utf8") as jfile:
     data = json.load(jfile)
 

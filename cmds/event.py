@@ -1,10 +1,7 @@
-from re import M
-
 from discord import Member, Message
 from discord.ext import commands
 
 from core.classes import Cog_Extension
-from core.tools import ctx_send
 
 
 class Event(Cog_Extension):

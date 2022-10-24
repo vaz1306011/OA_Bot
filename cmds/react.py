@@ -1,6 +1,6 @@
 import random
 
-from discord import Member, Role, User
+from discord import Embed, Member, Role, User
 from discord.ext import commands
 from discord.ext.commands import Context
 
@@ -20,6 +20,18 @@ class React(Cog_Extension):
         await ctx.message.delete()
         await ctx.send(msg)
 
+    @commands.command(brief="顯示小說下載雲端連結")  # 小說下載指令
+    async def novel(self, ctx: Context):
+        embed = Embed(
+            title="小說雲端網址",
+            url=self.URL["novel"],
+        )
+        await ctx.send(embed=embed)
+
+    @commands.command(brief="顯示自己id")
+    async def myid(self, ctx: Context):
+        await ctx_send(ctx, f"{ctx.author.id}")
+
     @commands.command(brief="清理訊息")  # 清理訊息指令
     @is_owner()
     async def clean(self, ctx: Context, num: int):
@@ -29,10 +41,6 @@ class React(Cog_Extension):
     @is_owner()
     async def id(self, ctx: Context, user: User):
         await ctx_send(ctx, user.id)
-
-    @commands.command(brief="顯示自己id")
-    async def myid(self, ctx: Context):
-        await ctx_send(ctx, f"{ctx.author.id}")
 
     @commands.command(brief="顯示頻道id")
     @is_owner()
@@ -57,6 +65,12 @@ class React(Cog_Extension):
         member = member or ctx.message.author
         await member.remove_roles(role)
         await ctx_send(ctx, f"已將 {member.mention} 移出 {role.mention} 身分組")
+
+    @commands.command(brief="猜拳")
+    async def VOW(self, ctx: Context, n: int):
+        if n >= 2:
+            view = self.VOWView(n)
+            await ctx_send(ctx, "先別吵過來猜拳", view=view)
 
 
 async def setup(bot: commands.Bot):
