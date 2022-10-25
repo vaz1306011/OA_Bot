@@ -1,10 +1,10 @@
 import random
 
-from discord import Embed, Member, Role, User
+from discord import Embed, Member, Role
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from core.check import is_owner
+from core.check import is_owner, is_user
 from core.classes import Cog_Extension
 from core.tools import ctx_send
 
@@ -39,8 +39,8 @@ class React(Cog_Extension):
 
     @commands.command(brief="顯示某人id")
     @is_owner()
-    async def id(self, ctx: Context, user: User):
-        await ctx_send(ctx, user.id)
+    async def id(self, ctx: Context, member: Member):
+        await ctx_send(ctx, member.id)
 
     @commands.command(brief="顯示頻道id")
     @is_owner()
@@ -67,10 +67,20 @@ class React(Cog_Extension):
         await ctx_send(ctx, f"已將 {member.mention} 移出 {role.mention} 身分組")
 
     @commands.command(brief="猜拳")
-    async def VOW(self, ctx: Context, n: int):
-        if n >= 2:
-            view = self.VOWView(n)
-            await ctx_send(ctx, "先別吵過來猜拳", view=view)
+    async def VOW(self, ctx: Context, *args):
+        if is_user(args[0]):
+            people_list = [arg for arg in args if is_user(arg)]
+            view = self.VOWView(people_list=people_list)
+
+        elif args[0].isdigit():
+            n = int(args[0])
+            if n >= 2:
+                view = self.VOWView(n=n)
+
+        else:
+            raise commands.BadArgument("請輸入使用者或人數")
+
+        await ctx_send(ctx, "先別吵過來猜拳", view=view)
 
 
 async def setup(bot: commands.Bot):

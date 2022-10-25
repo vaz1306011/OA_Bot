@@ -40,16 +40,30 @@ class Cog_Extension(commands.Cog):
                 )
 
     class VOWView(View):
-        def __init__(self, n: int, timeout=None) -> None:
+        def __init__(
+            self,
+            n: int | None = None,
+            people_list: list | None = None,
+            timeout: float = None,
+        ) -> None:
+            """猜拳按鈕
+
+            Args:
+                n (int | None, optional): 人數. Defaults to None.
+                people_list (list | None, optional): 選手清單,只有在清單內的人可以參與猜拳. Defaults to None.
+                timeout (float, optional): View持續時間. Defaults to None.
+            """
             super().__init__(timeout=timeout)
-            self.n = n
+            if people_list is not None:
+                if len(people_list) < 2:
+                    raise commands.BadArgument("人數不足")
+
+            self.n = n if n is not None else len(people_list)
+            self.people_list = set(people_list) if people_list is not None else None
             self.clicked_people = dict()
 
-            V = Button(label="剪刀", emoji="✌🏽")
-            O = Button(label="石頭", emoji="✊🏽")
-            W = Button(label="布", emoji="✋🏽")
-
             async def check_end(interaction: Interaction):
+                print(self.clicked_people)
                 if len(self.clicked_people) >= self.n:
                     await interaction.message.delete()
 
@@ -76,18 +90,34 @@ class Cog_Extension(commands.Cog):
 
             async def V_cb(interaction: Interaction):
                 await interaction.response.defer()
+                if self.people_list is not None:
+                    if f"<@{interaction.user.id}>" not in self.people_list:
+                        return
+
                 self.clicked_people[interaction.user.id] = "✌🏽剪刀"
                 await check_end(interaction)
 
             async def O_cb(interaction: Interaction):
                 await interaction.response.defer()
+                if self.people_list is not None:
+                    if f"<@{interaction.user.id}>" not in self.people_list:
+                        return
+
                 self.clicked_people[interaction.user.id] = "✊🏽石頭"
                 await check_end(interaction)
 
             async def W_cb(interaction: Interaction):
                 await interaction.response.defer()
+                if self.people_list is not None:
+                    if f"<@{interaction.user.id}>" not in self.people_list:
+                        return
+
                 self.clicked_people[interaction.user.id] = "✋🏽布"
                 await check_end(interaction)
+
+            V = Button(label="剪刀", emoji="✌🏽")
+            O = Button(label="石頭", emoji="✊🏽")
+            W = Button(label="布", emoji="✋🏽")
 
             V.callback = V_cb
             O.callback = O_cb
