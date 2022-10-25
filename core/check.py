@@ -17,3 +17,11 @@ def is_owner():
         return True
 
     return commands.check(predicate)
+
+
+def is_user(name: str):
+    return name.startswith("<@") and name[2] != "&" and name[-1] == ">"
+
+
+def is_role(name: str):
+    return name.startswith("<@&") and name[-1] == ">"
