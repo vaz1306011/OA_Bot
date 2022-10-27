@@ -1,4 +1,4 @@
-from discord import Member, Message
+import discord
 from discord.ext import commands
 
 from core.classes import Cog_Extension
@@ -6,17 +6,17 @@ from core.classes import Cog_Extension
 
 class Event(Cog_Extension):
     @commands.Cog.listener()  # 成員加入公告
-    async def on_member_join(self, member: Member):
+    async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(self.channel["公告頻道"])  # 設定頻道
         await channel.send(f"{member.mention} 變成了老屁股")  # 發送訊息
 
     @commands.Cog.listener()  # 成員退出公告
-    async def on_member_remove(self, member: Member):
+    async def on_member_remove(self, member: discord.Member):
         channel = self.bot.get_channel(self.channel["公告頻道"])
         await channel.send(f"{member.mention} 不是老屁股了")
 
     @commands.Cog.listener()
-    async def on_message(self, msg: Message):
+    async def on_message(self, msg: discord.Message):
         content = msg.content
 
         if msg.author.bot:

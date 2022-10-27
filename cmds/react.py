@@ -1,6 +1,6 @@
 import random
 
-from discord import Embed, Member, Role
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 
@@ -22,7 +22,7 @@ class React(Cog_Extension):
 
     @commands.command(brief="顯示小說下載雲端連結")  # 小說下載指令
     async def novel(self, ctx: Context):
-        embed = Embed(
+        embed = discord.Embed(
             title="小說雲端網址",
             url=self.URL["novel"],
         )
@@ -34,12 +34,12 @@ class React(Cog_Extension):
 
     @commands.command(brief="清理訊息")  # 清理訊息指令
     @is_owner()
-    async def clean(self, ctx: Context, num: int):
+    async def cls(self, ctx: Context, num: int):
         await ctx.channel.purge(limit=num + 1)
 
     @commands.command(brief="顯示某人id")
     @is_owner()
-    async def id(self, ctx: Context, member: Member):
+    async def id(self, ctx: Context, member: discord.Member):
         await ctx_send(ctx, member.id)
 
     @commands.command(brief="顯示頻道id")
@@ -49,38 +49,55 @@ class React(Cog_Extension):
 
     @commands.command(brief="顯示身分組id")
     @is_owner()
-    async def roleid(self, ctx: Context, role: Role):
+    async def roleid(self, ctx: Context, role: discord.Role):
         await ctx_send(ctx, f"{role.id}")
 
     @commands.command(brief="給定使用者身分組")
     @is_owner()
-    async def addrole(self, ctx: Context, role: Role, member: Member = None):
+    async def addrole(
+        self, ctx: Context, role: discord.Role, member: discord.Member | None = None
+    ):
         member = member or ctx.message.author
         await member.add_roles(role)
         await ctx_send(ctx, f"已將 {member.mention} 移至 {role.mention} 身分組")
 
     @commands.command(brief="移除使用者身分組")
     @is_owner()
-    async def removerole(self, ctx: Context, role: Role, member: Member = None):
+    async def removerole(
+        self, ctx: Context, role: discord.Role, member: discord.Member | None = None
+    ):
         member = member or ctx.message.author
         await member.remove_roles(role)
         await ctx_send(ctx, f"已將 {member.mention} 移出 {role.mention} 身分組")
 
     @commands.command(brief="猜拳")
     async def VOW(self, ctx: Context, *args):
-        if is_user(args[0]):
-            people_list = [arg for arg in args if is_user(arg)]
-            view = self.VOWView(people_list=people_list)
 
-        elif args[0].isdigit():
+        if len(args) == 1:
             n = int(args[0])
             if n >= 2:
                 view = self.VOWView(n=n)
+
+        elif len(args) >= 2:
+            participant = [int(arg[2:-1]) for arg in args if is_user(arg)]
+            view = self.VOWView(participant=participant)
 
         else:
             raise commands.BadArgument("請輸入使用者或人數")
 
         await ctx_send(ctx, "先別吵過來猜拳", view=view)
+
+    @commands.command(brief="骰骰子")
+    async def roll(self, ctx: Context, n: int | None = None, m: int | None = None):
+        match n, m:
+            case None, None:
+                await ctx_send(ctx, f"骰出 {random.randint(1, 20)}")
+
+            case n, None:
+                await ctx_send(ctx, f"骰出 {random.randint(1, n)}")
+
+            case n, m:
+                await ctx_send(ctx, f"骰出 {random.randint(n, m)}")
 
 
 async def setup(bot: commands.Bot):

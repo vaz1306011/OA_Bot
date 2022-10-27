@@ -1,7 +1,6 @@
 import json
 
 import discord
-from discord import ButtonStyle, Interaction
 from discord.ext import commands
 from discord.ui import Button, View
 
@@ -17,12 +16,12 @@ class Cog_Extension(commands.Cog):
 
     class Role_button(Button):
         def __init__(
-            self, role_id, label: str, style: ButtonStyle, emoji: str, **kwargs
+            self, role_id, label: str, style: discord.ButtonStyle, emoji: str, **kwargs
         ) -> None:
             super().__init__(label=label, style=style, emoji=emoji, **kwargs)
             self.role_id = role_id
 
-        async def callback(self, interaction: Interaction) -> None:
+        async def callback(self, interaction: discord.Interaction) -> None:
             await interaction.response.defer()
             role = interaction.guild.get_role(self.role_id)
             if role is None:
@@ -33,6 +32,7 @@ class Cog_Extension(commands.Cog):
                 await interaction.channel.send(
                     f"已將{interaction.user.mention} 移除 {role.mention}"
                 )
+
             else:
                 await interaction.user.add_roles(role)
                 await interaction.channel.send(
@@ -42,27 +42,40 @@ class Cog_Extension(commands.Cog):
     class VOWView(View):
         def __init__(
             self,
-            n: int | None = None,
-            people_list: list | None = None,
-            timeout: float = None,
+            n: int | None = 0,
+            participant: set | None = None,
+            timeout: float | None = None,
         ) -> None:
             """猜拳按鈕
 
             Args:
                 n (int | None, optional): 人數. Defaults to None.
-                people_list (list | None, optional): 選手清單,只有在清單內的人可以參與猜拳. Defaults to None.
+                participant (list | None, optional): 參與者清單. Defaults to None.
                 timeout (float, optional): View持續時間. Defaults to None.
             """
+            if participant is None:
+                participant = set()
+
+            n = max(n, len(participant))
+
             super().__init__(timeout=timeout)
-            if people_list is not None:
-                if len(people_list) < 2:
-                    raise commands.BadArgument("人數不足")
+            if n < 2:
+                raise commands.BadArgument("人數不足")
 
-            self.n = n if n is not None else len(people_list)
-            self.people_list = set(people_list) if people_list is not None else None
+            self.n = n
+            self.participant = participant
             self.clicked_people = dict()
+            self.set_button()
 
-            async def check_end(interaction: Interaction):
+        def set_button(self):
+            def check_id(id: int) -> bool:
+                if self.participant:
+                    if id not in self.participant:
+                        return False
+
+                return True
+
+            async def check_end(interaction: discord.Interaction):
                 print(self.clicked_people)
                 if len(self.clicked_people) >= self.n:
                     await interaction.message.delete()
@@ -75,6 +88,7 @@ class Cog_Extension(commands.Cog):
                                 winner = "✊🏽石頭"
                             else:
                                 winner = "✌🏽剪刀"
+
                         else:
                             winner = "✋🏽布"
 
@@ -88,29 +102,26 @@ class Cog_Extension(commands.Cog):
                     embed = discord.Embed(title="猜拳結果", description=description.strip())
                     await interaction.channel.send(embed=embed)
 
-            async def V_cb(interaction: Interaction):
+            async def V_cb(interaction: discord.Interaction):
                 await interaction.response.defer()
-                if self.people_list is not None:
-                    if f"<@{interaction.user.id}>" not in self.people_list:
-                        return
+                if not check_id(interaction.user.id):
+                    return
 
                 self.clicked_people[interaction.user.id] = "✌🏽剪刀"
                 await check_end(interaction)
 
-            async def O_cb(interaction: Interaction):
+            async def O_cb(interaction: discord.Interaction):
                 await interaction.response.defer()
-                if self.people_list is not None:
-                    if f"<@{interaction.user.id}>" not in self.people_list:
-                        return
+                if not check_id(interaction.user.id):
+                    return
 
                 self.clicked_people[interaction.user.id] = "✊🏽石頭"
                 await check_end(interaction)
 
-            async def W_cb(interaction: Interaction):
+            async def W_cb(interaction: discord.Interaction):
                 await interaction.response.defer()
-                if self.people_list is not None:
-                    if f"<@{interaction.user.id}>" not in self.people_list:
-                        return
+                if not check_id(interaction.user.id):
+                    return
 
                 self.clicked_people[interaction.user.id] = "✋🏽布"
                 await check_end(interaction)

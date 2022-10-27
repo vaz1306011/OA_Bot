@@ -1,5 +1,4 @@
 import discord
-from discord import Interaction
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Button, View
@@ -41,15 +40,15 @@ class Test(Cog_Extension):
             emoji="🥵",
         )
 
-        async def btn1_callback(interaction: Interaction):
+        async def btn1_callback(interaction: discord.Interaction):
             await interaction.response.defer()
             await interaction.channel.send(f"{interaction.user.mention} 先不要白媽媽")
 
-        async def btn2_callback(interaction: Interaction):
+        async def btn2_callback(interaction: discord.Interaction):
             await interaction.response.defer()
             await interaction.channel.send(f"{interaction.user.mention} 先不要藍媽媽")
 
-        async def btn3_callback(interaction: Interaction):
+        async def btn3_callback(interaction: discord.Interaction):
             await interaction.response.defer()
             await interaction.channel.send(f"{interaction.user.mention} 先不要紅媽媽")
 
