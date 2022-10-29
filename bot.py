@@ -15,7 +15,7 @@ for filename in os.listdir("./cmds"):
     if filename.endswith(".py"):
         cmds.append(filename[:-3])
 
-bot = Bot(command_prefix="~", intents=discord.Intents.all(), description="老屁股機器人")
+bot = Bot(command_prefix="!", intents=discord.Intents.all(), description="老屁股機器人")
 
 
 @bot.event
