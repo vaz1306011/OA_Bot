@@ -34,8 +34,16 @@ class React(Cog_Extension):
 
     @commands.command(brief="清理訊息")  # 清理訊息指令
     @is_owner()
-    async def cls(self, ctx: Context, num: int):
-        await ctx.channel.purge(limit=num + 1)
+    async def cls(self, ctx: Context, num: int = 0):
+        if ctx.message.reference is not None:
+            msg_id = ctx.message.reference.message_id
+            num = 0
+            async for msg in ctx.channel.history():
+                if msg.id == msg_id:
+                    break
+                num += 1
+
+        await ctx.channel.purge(limit=max(0, num) + 1)
 
     @commands.command(brief="顯示某人id")
     @is_owner()
@@ -89,15 +97,19 @@ class React(Cog_Extension):
 
     @commands.command(brief="骰骰子")
     async def roll(self, ctx: Context, n: int | None = None, m: int | None = None):
+        from core.tools import ctx_send_normal
+
         match n, m:
             case None, None:
-                await ctx_send(ctx, f"骰出 {random.randint(1, 20)}")
+                n, m = 1, 20
 
             case n, None:
-                await ctx_send(ctx, f"骰出 {random.randint(1, n)}")
+                n, m = min(1, n), max(1, n)
 
             case n, m:
-                await ctx_send(ctx, f"骰出 {random.randint(n, m)}")
+                n, m = min(n, m), max(n, m)
+
+        await ctx_send_normal(ctx, f"從{n}到{m}骰出 {random.randint(n, m)}")
 
 
 async def setup(bot: commands.Bot):

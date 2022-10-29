@@ -1,3 +1,6 @@
+from functools import partial
+
+
 async def ctx_send(ctx, *msg, color=None, sep=" ", **kwargs):
     """
     傳送系統訊息
@@ -23,3 +26,12 @@ async def ctx_send(ctx, *msg, color=None, sep=" ", **kwargs):
             await ctx.send("```ini\n[" + msg + "]```", **kwargs)
         case _:
             await ctx.send(msg, **kwargs)
+
+
+ctx_send_normal = partial(ctx_send, color="normal")
+ctx_send_red = partial(ctx_send, color="red")
+ctx_send_orange = partial(ctx_send, color="orange")
+ctx_send_yellow = partial(ctx_send, color="yellow")
+ctx_send_green = partial(ctx_send, color="green")
+ctx_send_lightGreen = partial(ctx_send, color="lightGreen")
+ctx_send_blue = partial(ctx_send, color="blue")
