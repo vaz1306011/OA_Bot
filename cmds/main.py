@@ -1,86 +1,121 @@
-import discord
-from discord.ext import commands
-from discord.ext.commands import Context
+from typing import Literal
 
-from bot import cmds
-from core.check import is_owner
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+from core.check import is_owner_interaction
 from core.classes import Cog_Extension
-from core.tools import ctx_send
 
 
 class Main(Cog_Extension):
-    @commands.command(brief="載入模塊")
-    @is_owner()
-    async def load(self, ctx: Context, extension: str):
-        await self.bot.load_extension(f"cmds.{extension}")
-        await ctx_send(ctx, f"已載入{extension}")
+    @app_commands.command(description="載入模塊")
+    @is_owner_interaction()
+    async def load(self, interaction: discord.Interaction, cog_name: str):
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await self.bot.load_extension(f"cmds.{cog_name}")
+            interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(
+                f"載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
+            )
 
-    @commands.command(brief="卸載模塊")
-    @is_owner()
-    async def unload(self, ctx: Context, extension: str):
-        await self.bot.unload_extension(f"cmds.{extension}")
-        await ctx_send(ctx, f"已卸載{extension}")
+    @app_commands.command(description="卸載模塊")
+    @is_owner_interaction()
+    async def unload(self, interaction: discord.Interaction, cog_name: str):
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await self.bot.unload_extension(f"cmds.{cog_name}")
+            interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
+        except Exception as e:
+            await interaction.followup.send(
+                f"卸載模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
+            )
 
-    @commands.command(brief="重新載入模塊")
-    @is_owner()
-    async def reload(self, ctx: Context, *extensions: str):
-        if "*" in extensions:
-            for cmd in cmds:
-                await self.bot.unload_extension(f"cmds.{cmd}")
-                await self.bot.load_extension(f"cmds.{cmd}")
-                await ctx_send(ctx, f"已重新載入{cmd}")
+    @app_commands.command(description="重新載入模塊")
+    @is_owner_interaction()
+    async def reload(self, interaction: discord.Interaction, cog_name: str):
+        await interaction.response.defer(ephemeral=True)
+        try:
+            if cog_name == "*" or cog_name == "all":
+                from bot import cmds
 
-            await ctx.channel.purge(limit=len(cmds))
-            await ctx_send(ctx, "已重新載入所有指令")
+                for cmd in cmds:
+                    await self.bot.unload_extension(f"cmds.{cmd}")
+                    await self.bot.load_extension(f"cmds.{cmd}")
 
-        else:
-            extensions = set(extensions)
-            error_list = set()
-            for extension in extensions:
-                try:
-                    await self.bot.reload_extension(f"cmds.{extension}")
-                    await ctx_send(ctx, f"已重新載入{extension}")
+                await interaction.followup.send("已重新載入所有Cog", ephemeral=True)
+            else:
+                await self.bot.unload_extension(f"cmds.{cog_name}")
+                await self.bot.load_extension(f"cmds.{cog_name}")
+        except Exception as e:
+            await interaction.followup.send(
+                f"重新載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
+            )
 
-                except commands.ExtensionNotLoaded:
-                    error_list.add(extension)
-                    await ctx_send(ctx, f"<{extension}不存在或無法載入>")
+    @app_commands.command(description="同步指令")
+    @is_owner_interaction()
+    async def sync(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
+        synced = await self.bot.tree.sync()
+        await interaction.followup.send(f"已同步{len(synced)}條指令")
 
-            extensions_len = len(extensions)
-            if extensions_len > 1:
-                extensions = extensions - error_list
-                await ctx.channel.purge(limit=extensions_len)
-                reload_msg = f"已重新載入{', '.join(extensions)}    " if extensions else ""
-                cant_reload_msg = (
-                    ("<" + ", ".join(error_list) + "無法載入>") if error_list else ""
-                )
-                await ctx_send(ctx, f"{reload_msg}{cant_reload_msg}")
+    @app_commands.command(description="設置機器人狀態")
+    @is_owner_interaction()
+    async def set_status(
+        self,
+        interaction: discord.Interaction,
+        status: Literal["在線", "空閒", "忙碌", "離線"],
+        activity: Literal["正在玩", "正在直播", "正在看", "正在聽", "競爭"] | None = None,
+        name: str | None = None,
+        url: str | None = None,
+    ):
+        await interaction.response.defer(ephemeral=True)
+        if activity is not None:
+            match activity:
+                case "正在玩":
+                    activity = discord.Game(name=name)
+                case "正在直播":
+                    activity = discord.Activity(
+                        name=name, type=discord.ActivityType.streaming, url=url
+                    )
+                case "正在看":
+                    activity = discord.Activity(
+                        name=name, type=discord.ActivityType.watching
+                    )
+                case "正在聽":
+                    activity = discord.Activity(
+                        name=name, type=discord.ActivityType.listening
+                    )
+                case "競爭":
+                    activity = discord.Activity(
+                        name=name, type=discord.ActivityType.competing
+                    )
 
-    @commands.command(brief="設置機器人狀態")
-    @is_owner()
-    async def set_status(self, ctx: Context, status: str):
         match status:
-            case "online":
-                await ctx.bot.change_presence(status=discord.Status.online)
-                await ctx_send(ctx, "已更改狀態為: 在線")
+            case "在線":
+                await self.bot.change_presence(
+                    status=discord.Status.online, activity=activity
+                )
+            case "空閒":
+                await self.bot.change_presence(
+                    status=discord.Status.idle, activity=activity
+                )
+            case "忙碌":
+                await self.bot.change_presence(
+                    status=discord.Status.dnd, activity=activity
+                )
+            case "離線":
+                await self.bot.change_presence(
+                    status=discord.Status.offline, activity=activity
+                )
 
-            case "idle":
-                await ctx.bot.change_presence(status=discord.Status.idle)
-                await ctx_send(ctx, "已更改狀態為: 空閒")
+        await interaction.followup.send(f"已設定狀態")
 
-            case "dnd":
-                await ctx.bot.change_presence(status=discord.Status.dnd)
-                await ctx_send(ctx, "已更改狀態為: 忙碌")
-
-            case "offline":
-                await ctx.bot.change_presence(status=discord.Status.offline)
-                await ctx_send(ctx, "已更改狀態為: 離線")
-
-            case _:
-                raise commands.BadArgument("無效的狀態")
-
-    @commands.command(brief="顯示ping值")  # 顯示延遲指令
-    async def ping(self, ctx: Context):
-        await ctx_send(ctx, f"{round(self.bot.latency*1000)}毫秒")
+    @app_commands.command(description="顯示ping值")
+    async def ping(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f"{round(self.bot.latency*1000)}毫秒")
 
 
 async def setup(bot: commands.Bot):

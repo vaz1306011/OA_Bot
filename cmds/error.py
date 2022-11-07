@@ -2,7 +2,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 from core.classes import Cog_Extension
-from core.tools import ctx_send
+from core.tools import ctx_send_red
 
 
 class Error(Cog_Extension):
@@ -10,10 +10,14 @@ class Error(Cog_Extension):
     async def on_command_error(self, ctx: Context, error: Exception):
         from functools import partial
 
-        send = partial(ctx_send, ctx, color="red")
+        def send():
+            ...
+
+        send = partial(ctx_send_red, ctx)
 
         try:
             raise error
+
         except commands.CommandNotFound as e:
             await send(f"指令不存在 <{e}>")
 

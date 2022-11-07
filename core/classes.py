@@ -12,6 +12,7 @@ class Cog_Extension(commands.Cog):
     id: dict = data["id"]
     role: dict = data["role"]
     channel: dict = data["channel"]
+    guild: dict = data["guild"]
     URL: dict = data["URL"]
 
     class Role_button(Button):

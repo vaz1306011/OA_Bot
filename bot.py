@@ -15,18 +15,12 @@ for filename in os.listdir("./cmds"):
     if filename.endswith(".py"):
         cmds.append(filename[:-3])
 
-bot = Bot(command_prefix="!", intents=discord.Intents.all(), description="老屁股機器人")
-
-
-@bot.event
-async def on_ready():
-    from datetime import datetime
-
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{now}] - OA_Bot上線")
-
-    game = discord.Game(name="吸娜娜奇")
-    await bot.change_presence(status=discord.Status.idle, activity=game)
+bot = Bot(
+    command_prefix="!",
+    intents=discord.Intents.all(),
+    description="老屁股機器人",
+    application_id="799467265010565120",
+)
 
 
 async def setup():
@@ -40,5 +34,6 @@ if __name__ == "__main__":
     try:
         asyncio.run(setup())
 
-    except:
+    except Exception as e:
+        print(e)
         os.system("kill 1")

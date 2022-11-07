@@ -1,39 +1,17 @@
 import random
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from core.check import is_owner, is_user
+from core.check import is_owner_ctx
 from core.classes import Cog_Extension
-from core.tools import ctx_send
 
 
 class React(Cog_Extension):
-    @commands.command(brief="隨機產生6位數網址")  # N站指令
-    async def nhentai(self, ctx: Context):
-        random_nhentai_digit = random.choice(self.data["nhentai"])
-        await ctx.send(f"https://nhentai.net/g/{random_nhentai_digit}")
-
-    @commands.command(brief="讓機器人說話")  # 讓機器人說話指令
-    async def say(self, ctx: Context, *, msg: str):
-        await ctx.message.delete()
-        await ctx.send(msg)
-
-    @commands.command(brief="顯示小說下載雲端連結")  # 小說下載指令
-    async def novel(self, ctx: Context):
-        embed = discord.Embed(
-            title="小說雲端網址",
-            url=self.URL["novel"],
-        )
-        await ctx.send(embed=embed)
-
-    @commands.command(brief="顯示自己id")
-    async def myid(self, ctx: Context):
-        await ctx_send(ctx, f"{ctx.author.id}")
-
-    @commands.command(brief="清理訊息")  # 清理訊息指令
-    @is_owner()
+    @commands.command(brief="清理訊息")
+    @is_owner_ctx()
     async def cls(self, ctx: Context, num: int = 0):
         if ctx.message.reference is not None:
             msg_id = ctx.message.reference.message_id
@@ -45,60 +23,78 @@ class React(Cog_Extension):
 
         await ctx.channel.purge(limit=max(0, num) + 1)
 
-    @commands.command(brief="顯示某人id")
-    @is_owner()
-    async def id(self, ctx: Context, member: discord.Member):
-        await ctx_send(ctx, member.id)
+    @app_commands.command(description="隨機產生6位數網址")
+    async def nhentai(self, interaction: discord.Interaction):
+        random_6digit = random.choice(self.data["nhentai"])
+        await interaction.response.send_message(
+            f"https://nhentai.net/g/{random_6digit}"
+        )
 
-    @commands.command(brief="顯示頻道id")
-    @is_owner()
-    async def channlid(self, ctx: Context):
-        await ctx_send(ctx, f"{ctx.channel.id}")
+    @app_commands.command(description="讓機器人說話")
+    async def say(self, interaction: discord.Interaction, message: str):
+        await interaction.response.send_message("已發送訊息", ephemeral=True)
+        await interaction.channel.send(message)
 
-    @commands.command(brief="顯示身分組id")
-    @is_owner()
-    async def roleid(self, ctx: Context, role: discord.Role):
-        await ctx_send(ctx, f"{role.id}")
+    @app_commands.command(description="顯示小說下載雲端連結")
+    async def novel(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="小說雲端網址",
+            url=self.URL["novel"],
+        )
+        await interaction.response.send_message(embed=embed)
 
-    @commands.command(brief="給定使用者身分組")
-    @is_owner()
-    async def addrole(
-        self, ctx: Context, role: discord.Role, member: discord.Member | None = None
+    @app_commands.command(description="猜拳")
+    async def vow(
+        self,
+        interaction: discord.Interaction,
+        number_of_people: int = None,
+        member1: discord.Member | None = None,
+        member2: discord.Member | None = None,
+        member3: discord.Member | None = None,
+        member4: discord.Member | None = None,
+        member5: discord.Member | None = None,
+        member6: discord.Member | None = None,
+        member7: discord.Member | None = None,
+        member8: discord.Member | None = None,
+        member9: discord.Member | None = None,
+        member10: discord.Member | None = None,
     ):
-        member = member or ctx.message.author
-        await member.add_roles(role)
-        await ctx_send(ctx, f"已將 {member.mention} 移至 {role.mention} 身分組")
-
-    @commands.command(brief="移除使用者身分組")
-    @is_owner()
-    async def removerole(
-        self, ctx: Context, role: discord.Role, member: discord.Member | None = None
-    ):
-        member = member or ctx.message.author
-        await member.remove_roles(role)
-        await ctx_send(ctx, f"已將 {member.mention} 移出 {role.mention} 身分組")
-
-    @commands.command(brief="猜拳")
-    async def VOW(self, ctx: Context, *args):
-
-        if len(args) == 1:
-            n = int(args[0])
-            if n >= 2:
-                view = self.VOWView(n=n)
-
-        elif len(args) >= 2:
-            participant = [int(arg[2:-1]) for arg in args if is_user(arg)]
-            view = self.VOWView(participant=participant)
-
+        members = {
+            member1,
+            member2,
+            member3,
+            member4,
+            member5,
+            member6,
+            member7,
+            member8,
+            member9,
+            member10,
+        }
+        members.discard(None)
+        if number_of_people is not None:
+            if number_of_people >= 2:
+                view = self.VOWView(n=number_of_people)
+                await interaction.response.send_message(
+                    f"你們{number_of_people}個先別吵過來猜拳", view=view
+                )
+            else:
+                raise commands.BadArgument("請輸入大於2的正整數")
         else:
-            raise commands.BadArgument("請輸入使用者或人數")
+            mentions = " ".join(
+                (member.mention for member in members if member is not None)
+            )
+            participant = {member.id for member in members}
+            view = self.VOWView(participant=participant)
+            await interaction.response.send_message(f"{mentions}先別吵過來猜拳", view=view)
 
-        await ctx_send(ctx, "先別吵過來猜拳", view=view)
-
-    @commands.command(brief="骰骰子")
-    async def roll(self, ctx: Context, n: int | None = None, m: int | None = None):
-        from core.tools import ctx_send_normal
-
+    @app_commands.command(description="骰骰子")
+    async def roll(
+        self,
+        interaction: discord.Interaction,
+        n: int | None = None,
+        m: int | None = None,
+    ):
         match n, m:
             case None, None:
                 n, m = 1, 20
@@ -109,7 +105,7 @@ class React(Cog_Extension):
             case n, m:
                 n, m = min(n, m), max(n, m)
 
-        await ctx_send_normal(ctx, f"從{n}到{m}骰出 {random.randint(n, m)}")
+        await interaction.response.send_message(f"從{n}到{m}骰出 {random.randint(n, m)}")
 
 
 async def setup(bot: commands.Bot):

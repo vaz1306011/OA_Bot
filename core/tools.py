@@ -1,7 +1,11 @@
 from functools import partial
 
+from discord.ext.commands import Context
 
-async def ctx_send(ctx, *msg, color=None, sep=" ", **kwargs):
+
+async def ctx_send(
+    ctx: Context, *msg, color: str | None = None, sep: str = " ", **kwargs
+):
     """
     傳送系統訊息
 
@@ -26,6 +30,34 @@ async def ctx_send(ctx, *msg, color=None, sep=" ", **kwargs):
             await ctx.send("```ini\n[" + msg + "]```", **kwargs)
         case _:
             await ctx.send(msg, **kwargs)
+
+
+def ctx_send_normal():
+    ...
+
+
+def ctx_send_red():
+    ...
+
+
+def ctx_send_orange():
+    ...
+
+
+def ctx_send_yellow():
+    ...
+
+
+def ctx_send_green():
+    ...
+
+
+def ctx_send_lightGreen():
+    ...
+
+
+def ctx_send_blue():
+    ...
 
 
 ctx_send_normal = partial(ctx_send, color="normal")

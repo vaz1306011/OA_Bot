@@ -5,6 +5,16 @@ from core.classes import Cog_Extension
 
 
 class Event(Cog_Extension):
+    @commands.Cog.listener()
+    async def on_ready(self):
+        from datetime import datetime
+
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{now}] - OA_Bot上線")
+
+        game = discord.Game(name="吸娜娜奇")
+        await self.bot.change_presence(status=discord.Status.idle, activity=game)
+
     @commands.Cog.listener()  # 成員加入公告
     async def on_member_join(self, member: discord.Member):
         channel = self.bot.get_channel(self.channel["公告頻道"])  # 設定頻道
