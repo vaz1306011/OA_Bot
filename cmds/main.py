@@ -42,14 +42,26 @@ class Main(Cog_Extension):
                 from bot import cmds
 
                 for cmd in cmds:
-                    await self.bot.unload_extension(f"cmds.{cmd}")
-                    await self.bot.load_extension(f"cmds.{cmd}")
+                    try:
+                        await self.bot.unload_extension(f"cmds.{cmd}")
+                        await self.bot.load_extension(f"cmds.{cmd}")
+                    except:
+                        pass
 
                 await interaction.followup.send("已重新載入所有Cog", ephemeral=True)
             else:
-                await self.bot.unload_extension(f"cmds.{cog_name}")
-                await self.bot.load_extension(f"cmds.{cog_name}")
+                try:
+                    await self.bot.unload_extension(f"cmds.{cog_name}")
+                except:
+                    pass
+                finally:
+                    await self.bot.load_extension(f"cmds.{cog_name}")
+
                 await interaction.followup.send(f"已重新載入 {cog_name} 模塊", ephemeral=True)
+
+        except commands.ExtensionNotLoaded as e:
+            pass
+
         except Exception as e:
             await interaction.followup.send(
                 f"重新載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
