@@ -15,7 +15,7 @@ class Main(Cog_Extension):
         await interaction.response.defer(ephemeral=True)
         try:
             await self.bot.load_extension(f"cmds.{cog_name}")
-            interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
+            await interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(
                 f"載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
@@ -27,7 +27,7 @@ class Main(Cog_Extension):
         await interaction.response.defer(ephemeral=True)
         try:
             await self.bot.unload_extension(f"cmds.{cog_name}")
-            interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
+            await interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(
                 f"卸載模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
