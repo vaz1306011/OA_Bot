@@ -49,6 +49,7 @@ class Main(Cog_Extension):
             else:
                 await self.bot.unload_extension(f"cmds.{cog_name}")
                 await self.bot.load_extension(f"cmds.{cog_name}")
+                await interaction.followup.send(f"已重新載入 {cog_name} 模塊", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(
                 f"重新載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
