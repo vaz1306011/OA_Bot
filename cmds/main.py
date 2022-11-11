@@ -66,7 +66,7 @@ class Main(Cog_Extension):
     async def set_status(
         self,
         interaction: discord.Interaction,
-        status: Literal["在線", "空閒", "忙碌", "離線"],
+        status: Literal["線上", "閒置", "請勿打擾", "離線"],
         activity: Literal["正在玩", "正在直播", "正在看", "正在聽", "競爭"] | None = None,
         name: str | None = None,
         url: str | None = None,
@@ -94,15 +94,15 @@ class Main(Cog_Extension):
                     )
 
         match status:
-            case "在線":
+            case "線上":
                 await self.bot.change_presence(
                     status=discord.Status.online, activity=activity
                 )
-            case "空閒":
+            case "閒置":
                 await self.bot.change_presence(
                     status=discord.Status.idle, activity=activity
                 )
-            case "忙碌":
+            case "請勿打擾":
                 await self.bot.change_presence(
                     status=discord.Status.dnd, activity=activity
                 )
