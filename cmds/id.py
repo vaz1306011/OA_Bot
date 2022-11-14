@@ -39,9 +39,16 @@ class Id(Cog_Extension):
 
     @id_group.command(description="顯示頻道id")
     @is_owner_interaction()
-    async def channl(self, interaction: discord.Interaction):
+    async def channel(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.TextChannel
+        | discord.VoiceChannel
+        | discord.StageChannel
+        | discord.CategoryChannel,
+    ):
         await interaction.response.send_message(
-            f"{interaction.channel} 頻道的ID為: {interaction.channel.id}", ephemeral=True
+            f"{channel.name} 頻道的ID為: {channel.id}", ephemeral=True
         )
 
     @id_group.command(description="顯示伺服器的id")
