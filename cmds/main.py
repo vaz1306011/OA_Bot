@@ -72,7 +72,7 @@ class Main(Cog_Extension):
     async def sync(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         synced = await self.bot.tree.sync()
-        await interaction.followup.send(f"已同步{len(synced)}條指令")
+        await interaction.followup.send(f"已同步{len(synced)}條指令", ephemeral=True)
 
     @app_commands.command(description="設置機器人狀態")
     @is_owner_interaction()
@@ -124,11 +124,13 @@ class Main(Cog_Extension):
                     status=discord.Status.offline, activity=activity
                 )
 
-        await interaction.followup.send(f"已設定狀態")
+        await interaction.followup.send(f"已設定狀態", ephemeral=True)
 
     @app_commands.command(description="顯示ping值")
     async def ping(self, interaction: discord.Interaction):
-        await interaction.response.send_message(f"{round(self.bot.latency*1000)}毫秒")
+        await interaction.response.send_message(
+            f"{round(self.bot.latency*1000)}毫秒", ephemeral=True
+        )
 
 
 async def setup(bot: commands.Bot):
