@@ -116,8 +116,8 @@ class React(Cog_Extension):
                 limit=num, before=interaction.created_at
             )
         ]
-        await interaction.channel.purge(limit=num, before=interaction.created_at)
         await interaction.followup.send(random.choice(msgs))
+        await interaction.channel.purge(limit=num, before=interaction.created_at)
 
 
 async def setup(bot: commands.Bot):
