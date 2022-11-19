@@ -1,14 +1,10 @@
 import asyncio
-import json
 import os
 
 import discord
 from discord.ext.commands import Bot
 
-with open("data.json", "r", encoding="utf8") as jfile:
-    data = json.load(jfile)
-
-token = data["TOKEN"]
+token = os.environ.get("Discord Bot Token")[:-1]
 
 cmds = []
 for filename in os.listdir("./cmds"):
