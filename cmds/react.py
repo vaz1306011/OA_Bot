@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
+from discord.ui import Button, View
 
 from core.check import is_owner_ctx
 from core.classes import Cog_Extension
@@ -59,6 +60,106 @@ class React(Cog_Extension):
         member9: discord.Member | None = None,
         member10: discord.Member | None = None,
     ):
+        class VOWView(View):
+            def __init__(
+                self,
+                n: int | None = 0,
+                participant: set | None = None,
+                timeout: float | None = None,
+            ) -> None:
+                """猜拳按鈕
+
+                Args:
+                    n (int | None, optional): 人數. Defaults to None.
+                    participant (list | None, optional): 參與者清單. Defaults to None.
+                    timeout (float, optional): View持續時間. Defaults to None.
+                """
+                if participant is None:
+                    participant = set()
+
+                n = max(n, len(participant))
+
+                super().__init__(timeout=timeout)
+                if n < 2:
+                    raise commands.BadArgument("人數不足")
+
+                self.n = n
+                self.participant = participant
+                self.clicked_people = dict()
+                self.set_button()
+
+            def set_button(self):
+                def check_id(id: int) -> bool:
+                    if self.participant:
+                        if id not in self.participant:
+                            return False
+
+                    return True
+
+                async def check_end(interaction: discord.Interaction):
+                    print(self.clicked_people)
+                    if len(self.clicked_people) >= self.n:
+                        await interaction.message.delete()
+
+                        choices = set(self.clicked_people.values())
+                        winner = None
+                        if len(choices) not in (1, 3):
+                            if "✌🏽剪刀" in choices:
+                                if "✊🏽石頭" in choices:
+                                    winner = "✊🏽石頭"
+                                else:
+                                    winner = "✌🏽剪刀"
+
+                            else:
+                                winner = "✋🏽布"
+
+                        description = ""
+                        for user_id, choice in self.clicked_people.items():
+                            user = interaction.guild.get_member(user_id)
+                            description += f"{user.mention}：{choice}"
+                            description += " 👑" if choice == winner else ""
+                            description += "\n"
+
+                        embed = discord.Embed(
+                            title="猜拳結果", description=description.strip()
+                        )
+                        await interaction.channel.send(embed=embed)
+
+                async def V_cb(interaction: discord.Interaction):
+                    await interaction.response.defer()
+                    if not check_id(interaction.user.id):
+                        return
+
+                    self.clicked_people[interaction.user.id] = "✌🏽剪刀"
+                    await check_end(interaction)
+
+                async def O_cb(interaction: discord.Interaction):
+                    await interaction.response.defer()
+                    if not check_id(interaction.user.id):
+                        return
+
+                    self.clicked_people[interaction.user.id] = "✊🏽石頭"
+                    await check_end(interaction)
+
+                async def W_cb(interaction: discord.Interaction):
+                    await interaction.response.defer()
+                    if not check_id(interaction.user.id):
+                        return
+
+                    self.clicked_people[interaction.user.id] = "✋🏽布"
+                    await check_end(interaction)
+
+                V = Button(label="剪刀", emoji="✌🏽")
+                O = Button(label="石頭", emoji="✊🏽")
+                W = Button(label="布", emoji="✋🏽")
+
+                V.callback = V_cb
+                O.callback = O_cb
+                W.callback = W_cb
+
+                for choice in (V, O, W):
+                    self.add_item(choice)
+
         members = {
             member1,
             member2,
@@ -74,7 +175,7 @@ class React(Cog_Extension):
         members.discard(None)
         if number_of_people is not None:
             if number_of_people >= 2:
-                view = self.VOWView(n=number_of_people)
+                view = VOWView(n=number_of_people)
                 await interaction.response.send_message(
                     f"你們{number_of_people}個先別吵過來猜拳", view=view
                 )
@@ -85,7 +186,7 @@ class React(Cog_Extension):
                 (member.mention for member in members if member is not None)
             )
             participant = {member.id for member in members}
-            view = self.VOWView(participant=participant)
+            view = VOWView(participant=participant)
             await interaction.response.send_message(f"{mentions}先別吵過來猜拳", view=view)
 
     @app_commands.command(description="骰骰子")

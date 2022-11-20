@@ -66,7 +66,37 @@ class Test(Cog_Extension):
 
     @commands.command()
     async def test4(self, ctx: Context):
-        test = self.Role_button(
+        class RoleButton(Button):
+            def __init__(
+                self,
+                role_id,
+                label: str,
+                style: discord.ButtonStyle,
+                emoji: str,
+                **kwargs,
+            ) -> None:
+                super().__init__(label=label, style=style, emoji=emoji, **kwargs)
+                self.role_id = role_id
+
+            async def callback(self, interaction: discord.Interaction) -> None:
+                await interaction.response.defer()
+                role = interaction.guild.get_role(self.role_id)
+                if role is None:
+                    raise commands.BadArgument("找不到身分組")
+
+                if role in interaction.user.roles:
+                    await interaction.user.remove_roles(role)
+                    await interaction.channel.send(
+                        f"已將{interaction.user.mention} 移除 {role.mention}"
+                    )
+
+                else:
+                    await interaction.user.add_roles(role)
+                    await interaction.channel.send(
+                        f"已將{interaction.user.mention} 加入 {role.mention}"
+                    )
+
+        test = RoleButton(
             role_id=self.role["test"],
             label="test身分組",
             style=discord.ButtonStyle.blurple,
