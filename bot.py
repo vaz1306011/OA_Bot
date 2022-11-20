@@ -4,7 +4,7 @@ import os
 import discord
 from discord.ext.commands import Bot
 
-token = os.environ.get("Discord Bot Token")[:-1]
+token = os.environ.get("Discord Bot Token")
 
 cmds = []
 for filename in os.listdir("./cmds"):
