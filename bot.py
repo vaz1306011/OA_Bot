@@ -15,7 +15,6 @@ bot = Bot(
     command_prefix="!",
     intents=discord.Intents.all(),
     description="老屁股機器人",
-    application_id="799467265010565120",
 )
 
 
