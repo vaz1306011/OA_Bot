@@ -53,7 +53,7 @@ class Event(Cog_Extension):
         if "好" in content:
             await msg.channel.send("好耶")
 
-        if "確實" in content or "雀石" in content:
+        if any(word in content for word in ["確實", "雀石", "雀食"]):
             await msg.channel.send("雀石")
 
 
