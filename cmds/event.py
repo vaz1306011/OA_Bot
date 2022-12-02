@@ -35,10 +35,10 @@ class Event(Cog_Extension):
             return
 
         if random.randint(1, 10_000) == 1:
-            await msg.channel.send("10000分之1的機率,被雷劈")
+            await msg.channel.send("10000分之1的機率,被雷劈", reference=msg)
 
         if random.randint(1, 22_000_000) == 1:
-            await msg.channel.send("2200萬分之一的機率,威力彩頭獎")
+            await msg.channel.send("2200萬分之一的機率,威力彩頭獎", reference=msg)
 
         # Sofia檢測
         if msg.author.id == self.id["Sofia"]:
