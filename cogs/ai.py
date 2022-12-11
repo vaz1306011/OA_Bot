@@ -11,6 +11,28 @@ class AI(Cog_Extension):
     身分組指令群組
     """
 
+    @commands.Cog.listener()
+    async def on_message(self, msg: discord.Message):
+        if msg.author.bot:
+            return
+
+        if msg.channel.id == self.channel["ai問答"]:
+            ans_msg = await msg.channel.send("OA_Bot正在思考...")
+            response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=f"問題:{msg.content}\nOA_Bot:",
+                temperature=0,
+                max_tokens=4000,
+                top_p=1,
+                frequency_penalty=0.0,
+                presence_penalty=0.0,
+                stop=["問題:"],
+            )
+
+            answer = response["choices"][0]["text"]
+
+            await ans_msg.edit(content=answer)
+
     AI_group = app_commands.Group(name="ai", description="AI相關")
 
     @AI_group.command(description="AI作畫")
