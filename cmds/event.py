@@ -1,6 +1,8 @@
+import os
 import random
 
 import discord
+import openai
 from discord.ext import commands
 
 from core.classes import Cog_Extension
@@ -16,6 +18,8 @@ class Event(Cog_Extension):
 
         game = discord.Game(name="吸娜娜奇")
         await self.bot.change_presence(status=discord.Status.idle, activity=game)
+
+        openai.api_key = os.environ.get("OPENAI_API_KEY")
 
     @commands.Cog.listener()  # 成員加入公告
     async def on_member_join(self, member: discord.Member):

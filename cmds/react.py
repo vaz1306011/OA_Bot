@@ -1,6 +1,8 @@
+import os
 import random
 
 import discord
+import openai
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -219,18 +221,6 @@ class React(Cog_Extension):
         ]
         await interaction.followup.send(random.choice(msgs))
         await interaction.channel.purge(limit=num, before=interaction.created_at)
-
-    @app_commands.command(description="AI作畫")
-    async def draw(self, interaction: discord.Interaction, text: str, n: int = 1):
-        await interaction.response.defer()
-        import os
-
-        import openai
-
-        openai.api_key = os.environ.get("OPENAI_API_KEY")
-        response = openai.Image.create(prompt=text, n=n, size="1024x1024")
-        for url in response["data"]:
-            await interaction.followup.send(url["url"])
 
 
 async def setup(bot: commands.Bot):
