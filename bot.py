@@ -6,10 +6,10 @@ from discord.ext.commands import Bot
 
 token = os.environ.get("OA_BOT_TOKEN")
 
-cmds = []
-for filename in os.listdir("./cmds"):
+cogs = []
+for filename in os.listdir("./cogs"):
     if filename.endswith(".py"):
-        cmds.append(filename[:-3])
+        cogs.append(filename[:-3])
 
 bot = Bot(
     command_prefix="!",
@@ -19,8 +19,8 @@ bot = Bot(
 
 
 async def setup():
-    for cmd in cmds:
-        await bot.load_extension(f"cmds.{cmd}")
+    for cog in cogs:
+        await bot.load_extension(f"cogs.{cog}")
 
     await bot.start(token)
 

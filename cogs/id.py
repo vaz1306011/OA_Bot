@@ -45,8 +45,11 @@ class Id(Cog_Extension):
         channel: discord.TextChannel
         | discord.VoiceChannel
         | discord.StageChannel
-        | discord.CategoryChannel,
+        | discord.CategoryChannel
+        | None = None,
     ):
+        if channel is None:
+            channel = interaction.channel
         await interaction.response.send_message(
             f"{channel.name} 頻道的ID為: {channel.id}", ephemeral=True
         )

@@ -9,9 +9,22 @@ from core.classes import Cog_Extension
 
 
 class Main(Cog_Extension):
+    Cog = Literal[
+        "*",
+        "ai",
+        "error",
+        "event",
+        "id",
+        "main",
+        "react",
+        "role",
+        "task",
+        "test",
+    ]
+
     @app_commands.command(description="載入模塊")
     @is_owner_interaction()
-    async def load(self, interaction: discord.Interaction, cog_name: str):
+    async def load(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
             await self.bot.load_extension(f"cmds.{cog_name}")
@@ -23,7 +36,7 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="卸載模塊")
     @is_owner_interaction()
-    async def unload(self, interaction: discord.Interaction, cog_name: str):
+    async def unload(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
             await self.bot.unload_extension(f"cmds.{cog_name}")
@@ -35,13 +48,17 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="重新載入模塊")
     @is_owner_interaction()
-    async def reload(self, interaction: discord.Interaction, cog_name: str):
+    async def reload(
+        self,
+        interaction: discord.Interaction,
+        cog_name: Cog,
+    ):
         await interaction.response.defer(ephemeral=True)
         try:
-            if cog_name == "*" or cog_name == "all":
-                from bot import cmds
+            if cog_name == "*":
+                from bot import cogs
 
-                for cmd in cmds:
+                for cmd in cogs:
                     try:
                         await self.bot.unload_extension(f"cmds.{cmd}")
                         await self.bot.load_extension(f"cmds.{cmd}")
