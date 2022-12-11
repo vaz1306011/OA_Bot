@@ -27,7 +27,7 @@ class Main(Cog_Extension):
     async def load(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
-            await self.bot.load_extension(f"cmds.{cog_name}")
+            await self.bot.load_extension(f"cogs.{cog_name}")
             await interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(
@@ -39,7 +39,7 @@ class Main(Cog_Extension):
     async def unload(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
-            await self.bot.unload_extension(f"cmds.{cog_name}")
+            await self.bot.unload_extension(f"cogs.{cog_name}")
             await interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(
@@ -60,19 +60,19 @@ class Main(Cog_Extension):
 
                 for cmd in cogs:
                     try:
-                        await self.bot.unload_extension(f"cmds.{cmd}")
-                        await self.bot.load_extension(f"cmds.{cmd}")
+                        await self.bot.unload_extension(f"cogs.{cmd}")
+                        await self.bot.load_extension(f"cogs.{cmd}")
                     except:
                         pass
 
                 await interaction.followup.send("已重新載入所有Cog", ephemeral=True)
             else:
                 try:
-                    await self.bot.unload_extension(f"cmds.{cog_name}")
+                    await self.bot.unload_extension(f"cogs.{cog_name}")
                 except:
                     pass
                 finally:
-                    await self.bot.load_extension(f"cmds.{cog_name}")
+                    await self.bot.load_extension(f"cogs.{cog_name}")
 
                 await interaction.followup.send(f"已重新載入 {cog_name} 模塊", ephemeral=True)
 

@@ -43,13 +43,13 @@ class AI(Cog_Extension):
 
         response = openai.Completion.create(
             model="text-davinci-003",
-            prompt=f"Question:{text}\nOA_Bot:",
+            prompt=f"問題:{text}\nOA_Bot:",
             temperature=0,
             max_tokens=4000,
             top_p=1,
             frequency_penalty=0.0,
             presence_penalty=0.0,
-            stop=["Question:"],
+            stop=["問題:"],
         )
 
         answer = response["choices"][0]["text"]

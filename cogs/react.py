@@ -1,8 +1,6 @@
-import os
 import random
 
 import discord
-import openai
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context

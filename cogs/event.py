@@ -21,23 +21,15 @@ class Event(Cog_Extension):
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    @commands.Cog.listener()  # 成員加入公告
-    async def on_member_join(self, member: discord.Member):
-        channel = self.bot.get_channel(self.channel["公告頻道"])  # 設定頻道
-        await channel.send(f"{member.mention} 變成了老屁股")  # 發送訊息
-
-    @commands.Cog.listener()  # 成員退出公告
-    async def on_member_remove(self, member: discord.Member):
-        channel = self.bot.get_channel(self.channel["公告頻道"])
-        await channel.send(f"{member.mention} 不是老屁股了")
-
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
         content = msg.content
 
+        # 機器人判斷
         if msg.author.bot:
             return
 
+        # 中獎判斷
         if random.randint(1, 10_000) == 1:
             await msg.channel.send("10000分之1的機率,被雷劈", reference=msg)
 
@@ -48,17 +40,21 @@ class Event(Cog_Extension):
         if msg.author.id == self.id["Sofia"]:
             return
 
+        # 指令判斷
         if content.startswith(self.bot.command_prefix):
             return
 
-        if "笑" in content:
-            await msg.channel.send("笑死")
+        # 關鍵字判斷
+        if any(word in content for word in ("笑", "草", "ww")):
+            word = random.choice(("笑死", "草", ""))
+            await msg.channel.send(word + "w" * random.randint(2, 5))
 
         if "好" in content:
             await msg.channel.send("好耶")
 
-        if any(word in content for word in ["確實", "雀石", "雀食"]):
-            await msg.channel.send("雀石")
+        if any(word in content for word in ("確實", "雀石", "雀食")):
+            word = random.choice(("確實", "雀石", "雀食"))
+            await msg.channel.send(word)
 
 
 async def setup(bot: commands.Bot):
