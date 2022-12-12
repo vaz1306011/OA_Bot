@@ -21,11 +21,6 @@ class Test(Cog_Extension):
 
     @commands.command()
     async def test2(self, ctx: Context):
-        game = discord.Game(name="吸娜娜奇")
-        await self.bot.change_presence(status=discord.Status.idle, activity=game)
-
-    @commands.command()
-    async def test3(self, ctx: Context):
         btn1 = Button(
             label="白媽媽",
             style=discord.ButtonStyle.blurple,
@@ -66,7 +61,7 @@ class Test(Cog_Extension):
         await ctx_send(ctx, "再點直接羈押", view=view)
 
     @commands.command()
-    async def test4(self, ctx: Context):
+    async def test3(self, ctx: Context):
         class RoleButton(Button):
             def __init__(
                 self,
@@ -108,7 +103,7 @@ class Test(Cog_Extension):
 
         await ctx_send(ctx, "加入身分組", view=view)
 
-    test_group = app_commands.Group(name="test", description="測試指令")
+    test_group = app_commands.Group(name="test", description="test指令群組")
 
     @test_group.command()
     @app_commands.check(is_owner)
