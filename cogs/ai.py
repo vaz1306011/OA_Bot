@@ -15,7 +15,7 @@ class AI(Cog_Extension):
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
 
-        if msg.channel.id == self.channel["ai問答"]:
+        if msg.channel.id == self.CHANNEL["ai問答"]:
             if on_message_exception(msg):
                 return
 

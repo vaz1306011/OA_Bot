@@ -29,7 +29,7 @@ class Event(Cog_Extension):
         if on_message_exception(message):
             return
 
-        if message.channel.id == self.channel["ai問答"]:
+        if message.channel.id == self.CHANNEL["ai問答"]:
             return
 
         # 中獎判斷
@@ -40,7 +40,7 @@ class Event(Cog_Extension):
             await message.channel.send("2200萬分之一的機率,威力彩頭獎", reference=message)
 
         # Sofia檢測
-        if message.author.id == self.id["Sofia"]:
+        if message.author.id == self.USER_ID["Sofia"]:
             return
 
         # 關鍵字判斷

@@ -1,5 +1,5 @@
 {
-    "id": {
+    "user_id": {
         "owner_ids": [
             449546373445058563,
             437200686019772416
@@ -14,7 +14,7 @@
         "ai問答": 1051564135336399018
     },
     "guild": {
-        "老屁股伺服器": 758330839691558974
+        "老屁股": 758330839691558974
     },
     "nhentai": [
         "324438",
@@ -31,7 +31,7 @@
         "326144",
         "321539"
     ],
-    "URL": {
+    "url": {
         "novel": "https://drive.google.com/drive/folders/1Ptd4fPx_VorsXgc8DvdV2wiHqmuEKb7c?usp=sharing"
     }
 }

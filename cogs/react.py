@@ -26,7 +26,7 @@ class React(Cog_Extension):
 
     @app_commands.command(description="隨機產生6位數網址")
     async def nhentai(self, interaction: discord.Interaction):
-        random_6digit = random.choice(self.data["nhentai"])
+        random_6digit = random.choice(self.DATA["nhentai"])
         await interaction.response.send_message(
             f"https://nhentai.net/g/{random_6digit}"
         )

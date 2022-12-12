@@ -6,6 +6,7 @@ from discord.ui import Button, View
 
 from core.check import is_owner
 from core.classes import Cog_Extension
+from core.data import GUILD
 from core.tools import ctx_send
 
 
@@ -93,7 +94,7 @@ class Test(Cog_Extension):
                     )
 
         test = RoleButton(
-            role_id=self.role["test"],
+            role_id=self.ROLE["test"],
             label="test身分組",
             style=discord.ButtonStyle.blurple,
         )
@@ -113,7 +114,7 @@ class Test(Cog_Extension):
 
 async def setup(bot: commands.Bot):
     print("已讀取Test")
-    await bot.add_cog(Test(bot))
+    await bot.add_cog(Test(bot), guild=discord.Object(GUILD["老屁股"]))
 
 
 async def teardown(bot: commands.Bot):
