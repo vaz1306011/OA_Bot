@@ -29,6 +29,9 @@ class Event(Cog_Extension):
         if on_message_exception(message):
             return
 
+        if message.channel.id == self.channel["ai問答"]:
+            return
+
         # 中獎判斷
         if random.randint(1, 10_000) == 1:
             await message.channel.send("10000分之1的機率,被雷劈", reference=message)
