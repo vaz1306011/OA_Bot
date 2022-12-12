@@ -89,7 +89,13 @@ class Main(Cog_Extension):
     async def sync(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         synced = await self.bot.tree.sync()
-        await interaction.followup.send(f"已同步{len(synced)}條指令", ephemeral=True)
+        synced_oa = await self.bot.tree.sync(guild=discord.Object(self.GUILD["老屁股"]))
+        if interaction.guild_id == self.GUILD["老屁股"]:
+            await interaction.followup.send(
+                f"已同步{len(synced)}條指令，{len(synced_oa)}條OA指令", ephemeral=True
+            )
+        else:
+            await interaction.followup.send(f"已同步{len(synced)}條指令", ephemeral=True)
 
     @app_commands.command(description="設置機器人狀態")
     @app_commands.check(is_owner)
