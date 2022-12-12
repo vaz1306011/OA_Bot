@@ -6,13 +6,13 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Button, View
 
-from core.check import is_owner_ctx
+from core.check import is_owner
 from core.classes import Cog_Extension
 
 
 class React(Cog_Extension):
     @commands.command(brief="清理訊息")
-    @is_owner_ctx()
+    @commands.check(is_owner)
     async def cls(self, ctx: Context, num: int = 0):
         if ctx.message.reference is not None:
             msg_id = ctx.message.reference.message_id

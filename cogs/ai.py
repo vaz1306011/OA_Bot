@@ -33,7 +33,7 @@ class AI(Cog_Extension):
 
             await ans_msg.edit(content=answer)
 
-    AI_group = app_commands.Group(name="ai", description="AI相關")
+    AI_group = app_commands.Group(name="ai", description="AI指令群組")
 
     @AI_group.command(description="AI作畫")
     async def draw(self, interaction: discord.Interaction, text: str):

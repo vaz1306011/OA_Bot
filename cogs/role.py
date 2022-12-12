@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.check import is_owner_interaction
+from core.check import is_owner
 from core.classes import Cog_Extension
 
 
@@ -11,10 +11,10 @@ class Role(Cog_Extension):
     身分組指令群組
     """
 
-    role_group = app_commands.Group(name="role", description="身分組相關")
+    role_group = app_commands.Group(name="role", description="身分組指令群組")
 
     @role_group.command(description="給定使用者身分組")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def add(
         self,
         interaction: discord.Interaction,
@@ -27,7 +27,7 @@ class Role(Cog_Extension):
         )
 
     @role_group.command(description="移除使用者身分組")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def remove(
         self,
         interaction: discord.Interaction,

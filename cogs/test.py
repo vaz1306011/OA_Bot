@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Button, View
 
+from core.check import is_owner
 from core.classes import Cog_Extension
 from core.tools import ctx_send
 
@@ -110,25 +111,9 @@ class Test(Cog_Extension):
     test_group = app_commands.Group(name="test", description="測試指令")
 
     @test_group.command()
-    async def test(self, interaction: discord.Interaction):
-        await interaction.response.send_message("test")
-
-    @test_group.command()
-    async def test2(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        await interaction.channel.send("test2")
-
-    @test_group.command()
-    async def test3(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        await interaction.followup.send("test1")
-        await interaction.followup.send("test2")
-
-    @test_group.command()
-    async def test4(self, interaction: discord.Interaction):
-        await interaction.response.defer()
-        await self.bot.change_presence(status=discord.Status.online)
-        await interaction.followup.send("已更改狀態為: 在線")
+    @app_commands.check(is_owner)
+    async def permissions(self, interaction: discord.Interaction, test: str):
+        await interaction.response.send_message(f"你有管理員權限 {test}")
 
 
 async def setup(bot: commands.Bot):

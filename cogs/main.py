@@ -4,7 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.check import is_owner_interaction
+from core.check import is_owner
 from core.classes import Cog_Extension
 
 
@@ -23,7 +23,7 @@ class Main(Cog_Extension):
     ]
 
     @app_commands.command(description="載入模塊")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def load(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
@@ -35,7 +35,7 @@ class Main(Cog_Extension):
             )
 
     @app_commands.command(description="卸載模塊")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def unload(self, interaction: discord.Interaction, cog_name: Cog):
         await interaction.response.defer(ephemeral=True)
         try:
@@ -47,7 +47,7 @@ class Main(Cog_Extension):
             )
 
     @app_commands.command(description="重新載入模塊")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def reload(
         self,
         interaction: discord.Interaction,
@@ -85,14 +85,14 @@ class Main(Cog_Extension):
             )
 
     @app_commands.command(description="同步指令")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def sync(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         synced = await self.bot.tree.sync()
         await interaction.followup.send(f"已同步{len(synced)}條指令", ephemeral=True)
 
     @app_commands.command(description="設置機器人狀態")
-    @is_owner_interaction()
+    @app_commands.check(is_owner)
     async def set_status(
         self,
         interaction: discord.Interaction,

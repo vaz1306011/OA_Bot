@@ -30,9 +30,6 @@ class Error(Cog_Extension):
         except commands.MissingPermissions as e:
             await send(f"權限不足 <{e}>")
 
-        except commands.CheckFailure as e:
-            await send(f"檢查失敗 <{e}>")
-
         except commands.CommandOnCooldown as e:
             await send(f"指令過於頻繁 <{e}>")
 

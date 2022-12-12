@@ -32,31 +32,31 @@ async def ctx_send(
             await ctx.send(msg, **kwargs)
 
 
-def ctx_send_normal():
+async def ctx_send_normal(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_red():
+async def ctx_send_red(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_orange():
+async def ctx_send_orange(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_yellow():
+async def ctx_send_yellow(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_green():
+async def ctx_send_green(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_lightGreen():
+async def ctx_send_lightGreen(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
-def ctx_send_blue():
+async def ctx_send_blue(ctx: Context, *msg, sep: str = " ", **kwargs):
     ...
 
 
