@@ -15,7 +15,6 @@ class Id(Cog_Extension):
     id_group = app_commands.Group(name="id", description="id指令群組")
 
     @id_group.command(description="成員id")
-    @app_commands.check(is_owner)
     async def member(
         self,
         interaction: discord.Interaction,
@@ -31,14 +30,12 @@ class Id(Cog_Extension):
             )
 
     @id_group.command(description="身分組id")
-    @app_commands.check(is_owner)
     async def role(self, interaction: discord.Interaction, role: discord.Role):
         await interaction.response.send_message(
             f"{role} 身分組的ID為: {role.id}", ephemeral=True
         )
 
     @id_group.command(description="顯示頻道id")
-    @app_commands.check(is_owner)
     async def channel(
         self,
         interaction: discord.Interaction,
