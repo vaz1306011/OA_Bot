@@ -31,11 +31,11 @@ class AI(Cog_Extension):
                     presence_penalty=0.0,
                     stop=[" 問題:"],
                 )
-
-                answer = response["choices"][0]["text"]
-                await ans_msg.edit(content=answer)
             except Exception as e:
                 await ans_msg.edit(content=f"無法回答此問題, <{e}>")
+            else:
+                answer = response["choices"][0]["text"]
+                await ans_msg.edit(content=answer)
 
     AI_group = app_commands.Group(name="ai", description="AI指令群組")
 

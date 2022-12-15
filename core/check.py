@@ -29,10 +29,14 @@ def is_role(name: str):
 
 
 def on_message_exception(message: discord.Message):
+    content = message.content
     if message.author.bot:
         return True
 
-    if message.content.startswith(bot.command_prefix):
+    if content.startswith(bot.command_prefix):
+        return True
+
+    if (content.startswith(word) for word in ("http", "www", "https")):
         return True
 
     return False
