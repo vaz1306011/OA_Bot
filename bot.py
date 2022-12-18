@@ -1,4 +1,5 @@
 import asyncio
+import glob
 import os
 
 import discord
@@ -6,10 +7,8 @@ from discord.ext.commands import Bot
 
 token = os.environ.get("OA_BOT_TOKEN")
 
-cogs = []
-for filename in os.listdir("./cogs"):
-    if filename.endswith(".py"):
-        cogs.append(filename[:-3])
+cogs = glob.glob("*.py", root_dir="cogs")
+cogs = map(lambda x: x[:-3], cogs)
 
 bot = Bot(
     command_prefix="!",
