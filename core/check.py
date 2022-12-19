@@ -36,7 +36,4 @@ def on_message_exception(message: discord.Message):
     if content.startswith(bot.command_prefix):
         return True
 
-    if (content.startswith(word) for word in ("http", "www", "https")):
-        return True
-
     return False
