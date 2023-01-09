@@ -21,7 +21,7 @@ class AI(Cog_Extension):
 
             ans_msg = await msg.channel.send("OA_Bot正在思考...")
             try:
-                response = openai.Completion.create(
+                response = await openai.Completion.acreate(
                     model="text-davinci-003",
                     prompt=f" 問題:{msg.content}\n OA_Bot:",
                     temperature=0,
@@ -47,7 +47,7 @@ class AI(Cog_Extension):
         import aiohttp
 
         try:
-            response = openai.Image.create(prompt=text, n=1, size="1024x1024")
+            response = await openai.Image.acreate(prompt=text, n=1, size="1024x1024")
         except Exception as e:
             await interaction.followup.send(f"無法作畫,<{e}>")
         else:
@@ -72,7 +72,7 @@ class AI(Cog_Extension):
         await interaction.response.defer()
 
         try:
-            response = openai.Completion.create(
+            response = await openai.Completion.acreate(
                 model="text-davinci-003",
                 prompt=f" 問題:{text}\n OA_Bot:",
                 temperature=0,
@@ -93,7 +93,7 @@ class AI(Cog_Extension):
         await interaction.response.defer()
 
         try:
-            response = openai.Completion.create(
+            response = await openai.Completion.acreate(
                 model="text-davinci-003",
                 prompt=f" 使用者:{text}\n OA_Bot:",
                 temperature=0.9,
