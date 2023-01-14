@@ -1,31 +1,23 @@
+import enum
 from typing import Literal
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+import bot
 from core.check import is_owner
 from core.classes import Cog_Extension
 
 
 class Main(Cog_Extension):
-    Cog = Literal[
-        "*",
-        "ai",
-        "error",
-        "event",
-        "id",
-        "main",
-        "react",
-        "role",
-        "task",
-        "test",
-    ]
+    Cogs = enum.Enum("Cog", {cog: cog for cog in (["*"] + bot.cogs)})
 
     @app_commands.command(description="載入模塊")
     @app_commands.check(is_owner)
-    async def load(self, interaction: discord.Interaction, cog_name: Cog):
+    async def load(self, interaction: discord.Interaction, cog_name: Cogs):
         await interaction.response.defer(ephemeral=True)
+        cog_name = cog_name.value
         try:
             await self.bot.load_extension(f"cogs.{cog_name}")
             await interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
@@ -36,8 +28,9 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="卸載模塊")
     @app_commands.check(is_owner)
-    async def unload(self, interaction: discord.Interaction, cog_name: Cog):
+    async def unload(self, interaction: discord.Interaction, cog_name: Cogs):
         await interaction.response.defer(ephemeral=True)
+        cog_name = cog_name.value
         try:
             await self.bot.unload_extension(f"cogs.{cog_name}")
             await interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
@@ -51,14 +44,13 @@ class Main(Cog_Extension):
     async def reload(
         self,
         interaction: discord.Interaction,
-        cog_name: Cog,
+        cog_name: Cogs,
     ):
         await interaction.response.defer(ephemeral=True)
+        cog_name = cog_name.value
         try:
             if cog_name == "*":
-                from bot import cogs
-
-                for cmd in cogs:
+                for cmd in bot.cogs:
                     try:
                         await self.bot.unload_extension(f"cogs.{cmd}")
                         await self.bot.load_extension(f"cogs.{cmd}")

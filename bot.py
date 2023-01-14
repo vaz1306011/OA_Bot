@@ -8,7 +8,7 @@ from discord.ext.commands import Bot
 token = os.environ.get("OA_BOT_TOKEN")
 
 cogs = glob.glob("*.py", root_dir="cogs")
-cogs = map(lambda x: x[:-3], cogs)
+cogs = list(map(lambda x: x[:-3], cogs))
 
 bot = Bot(
     command_prefix="!",
