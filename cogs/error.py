@@ -10,11 +10,26 @@ class Error(Cog_Extension):
     async def on_command_error(self, ctx: Context, error: Exception):
         from functools import partial
 
-        def send():
-            ...
-
         send = partial(ctx_send_red, ctx)
 
+        if isinstance(error, commands.CommandNotFound):
+            await send(f"指令不存在 <{error}>")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await send(f"缺少參數 <{error}>")
+        elif isinstance(error, commands.BadArgument):
+            await send(f"參數錯誤 <{error}>")
+        elif isinstance(error, commands.MissingPermissions):
+            await send(f"權限不足 <{error}>")
+        elif isinstance(error, commands.CommandOnCooldown):
+            await send(f"指令過於頻繁 <{error}>")
+        elif isinstance(error, commands.CommandInvokeError):
+            await send(f"指令執行錯誤 <{error}>")
+        elif isinstance(error, commands.CommandError):
+            await send(f"指令錯誤 <{error}>")
+        else:
+            await send(f"發生錯誤 <{error}>")
+
+        """
         try:
             raise error
 
@@ -41,6 +56,7 @@ class Error(Cog_Extension):
 
         except Exception as e:
             await send(f"發生錯誤 <{e}>")
+        """
 
 
 async def setup(bot: commands.Bot):
