@@ -52,7 +52,7 @@ class Event(Cog_Extension):
         if "好" in content:
             await message.channel.send("好耶")
 
-        if any(word in content for word in ("確實", "雀石", "雀食")):
+        if re.search(r"[確雀][實石食]", content):
             word = random.choice(("確實", "雀石", "雀食"))
             await message.channel.send(word)
 
