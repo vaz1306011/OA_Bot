@@ -209,16 +209,16 @@ class React(Cog_Extension):
         await interaction.response.send_message(f"從{n}到{m}骰出 {random.randint(n, m)}")
 
     @app_commands.command(description="隨機選擇器")
-    async def choose(self, interaction: discord.Interaction, num: int):
+    async def choose(self, interaction: discord.Interaction, n: int, m: int):
         await interaction.response.defer()
         msgs = [
             msg.content
             async for msg in interaction.channel.history(
-                limit=num, before=interaction.created_at
+                limit=n, before=interaction.created_at
             )
         ]
-        await interaction.followup.send(random.choice(msgs))
-        await interaction.channel.purge(limit=num, before=interaction.created_at)
+        await interaction.followup.send("\n".join(random.sample(msgs, k=m)))
+        await interaction.channel.purge(limit=n, before=interaction.created_at)
 
 
 async def setup(bot: commands.Bot):
