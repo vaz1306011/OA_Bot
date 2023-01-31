@@ -25,7 +25,7 @@ class Event(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        content = re.sub(r"\bhttps?://\S{2,}\b", "", message.content)
+        content = re.sub(r"https?://\S{2,}\b", "", message.content)
 
         if is_exception_content(message):
             return
