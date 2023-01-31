@@ -74,12 +74,13 @@ class React(Cog_Extension):
                     participant (list | None, optional): 參與者清單. Defaults to None.
                     timeout (float, optional): View持續時間. Defaults to None.
                 """
+                super().__init__(timeout=timeout)
+
                 if participant is None:
                     participant = set()
 
                 n = max(n, len(participant))
 
-                super().__init__(timeout=timeout)
                 if n < 2:
                     raise commands.BadArgument("人數不足")
 
@@ -97,7 +98,17 @@ class React(Cog_Extension):
                     return True
 
                 async def check_end(interaction: discord.Interaction):
-                    print(self.clicked_people)
+                    from re import sub
+
+                    print(
+                        sub(
+                            "\d+",
+                            lambda matched: interaction.guild.get_member(
+                                int(matched.group())
+                            ).nick,
+                            str(self.clicked_people),
+                        )
+                    )
                     if len(self.clicked_people) >= self.n:
                         await interaction.message.delete()
 
