@@ -1,11 +1,12 @@
 import os
 import random
+import re
 
 import discord
 import openai
 from discord.ext import commands
 
-from core.check import on_message_exception
+from core.check import is_exception_content
 from core.classes import Cog_Extension
 
 
@@ -24,9 +25,9 @@ class Event(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        content = message.content
+        content = re.sub(r"\bhttps?\S+\b", "", message.content)
 
-        if on_message_exception(message):
+        if is_exception_content(message):
             return
 
         if message.channel.id == self.CHANNEL["ai問答"]:

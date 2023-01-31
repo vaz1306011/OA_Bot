@@ -102,7 +102,7 @@ class React(Cog_Extension):
 
                     print(
                         sub(
-                            "\d+",
+                            r"\d+",
                             lambda matched: interaction.guild.get_member(
                                 int(matched.group())
                             ).nick,

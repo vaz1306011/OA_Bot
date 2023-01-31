@@ -3,7 +3,7 @@ import openai
 from discord import app_commands
 from discord.ext import commands
 
-from core.check import on_message_exception
+from core.check import is_exception_content
 from core.classes import Cog_Extension
 
 
@@ -16,7 +16,7 @@ class AI(Cog_Extension):
     async def on_message(self, msg: discord.Message):
 
         if msg.channel.id == self.CHANNEL["ai問答"]:
-            if on_message_exception(msg):
+            if is_exception_content(msg):
                 return
 
             ans_msg = await msg.channel.send("OA_Bot正在思考...")

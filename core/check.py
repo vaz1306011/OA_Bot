@@ -1,3 +1,5 @@
+import re
+
 import discord
 from discord.ext.commands import Context
 
@@ -21,18 +23,21 @@ async def is_owner(msg: Context | discord.Interaction):
 
 
 def is_user(name: str):
-    return name.startswith("<@") and name[2] != "&" and name[-1] == ">"
+    return not not re.match(r"<@\d+>", name)
 
 
 def is_role(name: str):
-    return name.startswith("<@&") and name[-1] == ">"
+    return not not re.match(r"<@&\d+>", name)
 
 
-def on_message_exception(message: discord.Message):
-    content = message.content
+def is_exception_content(message: discord.Message):
+    # 機器人說的
     if message.author.bot:
         return True
 
+    content = message.content
+
+    # 指令
     if content.startswith(bot.command_prefix):
         return True
 
