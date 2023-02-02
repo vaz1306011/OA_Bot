@@ -1,4 +1,5 @@
 import random
+import re
 from typing import Optional
 
 import discord
@@ -21,6 +22,9 @@ class React(Cog_Extension):
             ctx (Context): ctx
             num (int, optional): 要刪除的訊息數量
         """
+        if num <= 0:
+            return
+
         if ctx.message.reference is not None:
             msg_id = ctx.message.reference.message_id
             num = 0
@@ -38,20 +42,20 @@ class React(Cog_Extension):
         Args:
             interaction (discord.Interaction): interaction
         """
+        await interaction.response.defer()
         random_6digit = random.choice(self.DATA["nhentai"])
-        await interaction.response.send_message(
-            f"https://nhentai.net/g/{random_6digit}"
-        )
+        await interaction.followup.send(f"https://nhentai.net/g/{random_6digit}")
 
     @app_commands.command()
     async def say(self, interaction: discord.Interaction, message: str):
-        await interaction.response.send_message("已發送訊息", ephemeral=True)
         """讓機器人說話
 
         Args:
             interaction (discord.Interaction): interaction
             message (str): 要讓機器人說的話
         """
+        await interaction.response.defer()
+        await interaction.followup.send("已發送訊息", ephemeral=True)
         await interaction.channel.send(message)
 
     @app_commands.command()
@@ -61,13 +65,14 @@ class React(Cog_Extension):
         Args:
             interaction (discord.Interaction): interaction
         """
+        await interaction.response.defer()
         embed = discord.Embed(
             title="小說雲端網址",
             url=self.URL["novel"],
         )
-        await interaction.response.send_message(embed=embed)
+        await interaction.followup.send(embed=embed)
 
-    @app_commands.command(description="猜拳")
+    @app_commands.command()
     async def vow(
         self,
         interaction: discord.Interaction,
@@ -119,40 +124,37 @@ class React(Cog_Extension):
                 """
                 super().__init__(timeout=timeout)
 
-                if participant is None:
-                    participant = set()
-
-                n = max(n, len(participant))
-
-                if n < 2:
-                    raise commands.BadArgument("人數不足")
-
-                self.n = n
-                self.participant = participant
-                self.clicked_people = dict()
+                self.extra_participant_count = extra_participants_count
+                self.clicked_people = {member.id: None for member in participants}
                 self.set_button()
 
             def set_button(self):
-                def check_id(id: int) -> bool:
-                    if self.participant:
-                        if id not in self.participant:
-                            return False
+                def check_participant(id: int) -> bool:
+                    if id in self.clicked_people.keys():
+                        return True
 
-                    return True
+                    if self.extra_participant_count > 0:
+                        self.extra_participant_count -= 1
+                        return True
 
-                async def check_end(interaction: discord.Interaction):
-                    from re import sub
+                    return False
 
+                async def check_result(interaction: discord.Interaction):
                     print(
-                        sub(
+                        re.sub(
                             r"\d+",
                             lambda matched: interaction.guild.get_member(
                                 int(matched.group())
-                            ).nick,
+                            ).nick
+                            or interaction.guild.get_member(int(matched.group())).name,
                             str(self.clicked_people),
                         )
                     )
-                    if len(self.clicked_people) >= self.n:
+
+                    if (
+                        self.extra_participant_count == 0
+                        and None not in self.clicked_people.values()
+                    ):
                         await interaction.message.delete()
 
                         choices = set(self.clicked_people.values())
@@ -181,27 +183,27 @@ class React(Cog_Extension):
 
                 async def V_cb(interaction: discord.Interaction):
                     await interaction.response.defer()
-                    if not check_id(interaction.user.id):
+                    if not check_participant(interaction.user.id):
                         return
 
                     self.clicked_people[interaction.user.id] = "✌🏽剪刀"
-                    await check_end(interaction)
+                    await check_result(interaction)
 
                 async def O_cb(interaction: discord.Interaction):
                     await interaction.response.defer()
-                    if not check_id(interaction.user.id):
+                    if not check_participant(interaction.user.id):
                         return
 
                     self.clicked_people[interaction.user.id] = "✊🏽石頭"
-                    await check_end(interaction)
+                    await check_result(interaction)
 
                 async def W_cb(interaction: discord.Interaction):
                     await interaction.response.defer()
-                    if not check_id(interaction.user.id):
+                    if not check_participant(interaction.user.id):
                         return
 
                     self.clicked_people[interaction.user.id] = "✋🏽布"
-                    await check_end(interaction)
+                    await check_result(interaction)
 
                 V = Button(label="剪刀", emoji="✌🏽")
                 O = Button(label="石頭", emoji="✊🏽")
@@ -214,6 +216,8 @@ class React(Cog_Extension):
                 for choice in (V, O, W):
                     self.add_item(choice)
 
+        await interaction.response.defer()
+        extra_participants_count = max(0, extra_participants_count)
         members = {
             member1,
             member2,
@@ -227,37 +231,37 @@ class React(Cog_Extension):
             member10,
         }
         members.discard(None)
-        if number_of_people is not None:
-            if number_of_people >= 2:
-                view = VOWView(n=number_of_people)
-                await interaction.response.send_message(
-                    f"你們{number_of_people}個先別吵過來猜拳", view=view
-                )
-            else:
-                raise commands.BadArgument("請輸入大於2的正整數")
-        else:
-            mentions = " ".join(
-                (member.mention for member in members if member is not None)
-            )
-            participant = {member.id for member in members}
-            view = VOWView(participant=participant)
-            await interaction.response.send_message(f"{mentions}先別吵過來猜拳", view=view)
+        members_count = len(members)
+
+        if members_count + extra_participants_count < 2:
+            await interaction.followup.send("人數不足")
+            return
+
+        mentions_string = " ".join((member.mention for member in members))
+        extra_participants_count_string = (
+            f"你們{extra_participants_count}個" if extra_participants_count > 2 else "你"
+        )
+
+        if members_count > 0 and extra_participants_count > 0:
+            content = f"{mentions_string}還有{extra_participants_count_string}先別吵過來猜拳"
+        elif members_count > 0 and extra_participants_count == 0:
+            content = f"{mentions_string}先別吵過來猜拳"
+        elif members_count == 0 and extra_participants_count > 0:
+            content = f"{extra_participants_count_string}先別吵過來猜拳"
+
+        view = VOWView(extra_participants_count, members)
+
+        await interaction.followup.send(content, view=view)
 
     @app_commands.command(description="骰骰子")
     async def roll(
         self,
         interaction: discord.Interaction,
+        min: int = 1,
+        max: int = 20,
     ):
-        match n, m:
-            case None, None:
-                n, m = 1, 20
         """骰骰子
 
-            case n, None:
-                n, m = min(1, n), max(1, n)
-
-            case n, m:
-                n, m = min(n, m), max(n, m)
         Args:
             interaction (discord.Interaction): interaction
             min (Optional[int], optional): 骰出的最小值(預設為1)
@@ -268,7 +272,7 @@ class React(Cog_Extension):
             await interaction.followup.send("最小值不可大於最大值")
             return
 
-        await interaction.response.send_message(f"從{n}到{m}骰出 {random.randint(n, m)}")
+        await interaction.followup.send(f"從{min}到{max}骰出 {random.randint(min, max)}")
 
     @app_commands.command(description="隨機選擇器")
     async def choose(self, interaction: discord.Interaction, n: int, m: int):

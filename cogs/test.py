@@ -79,7 +79,7 @@ class Test(Cog_Extension):
                 await interaction.response.defer()
                 role = interaction.guild.get_role(self.role_id)
                 if role is None:
-                    raise commands.BadArgument("找不到身分組")
+                    await interaction.channel.send("找不到身分組")
 
                 if role in interaction.user.roles:
                     await interaction.user.remove_roles(role)
@@ -110,6 +110,13 @@ class Test(Cog_Extension):
     @app_commands.check(is_owner)
     async def permissions(self, interaction: discord.Interaction, test: str):
         await interaction.response.send_message(f"你有管理員權限 {test}")
+
+    @test_group.command()
+    @app_commands.check(is_owner)
+    async def test4(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            interaction.guild.get_member(449546373445058563).nick, ephemeral=True
+        )
 
 
 async def setup(bot: commands.Bot):
