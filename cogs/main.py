@@ -1,5 +1,5 @@
 import enum
-from typing import Literal
+from typing import Literal, Optional
 
 import discord
 from discord import app_commands
@@ -96,8 +96,8 @@ class Main(Cog_Extension):
         interaction: discord.Interaction,
         status: Literal["線上", "閒置", "請勿打擾", "離線"],
         activity: Literal["正在玩", "正在直播", "正在看", "正在聽", "競爭"] | None = None,
-        name: str | None = None,
-        url: str | None = None,
+        name: Optional[str] = None,
+        url: Optional[str] = None,
     ):
         await interaction.response.defer(ephemeral=True)
         if activity is not None:

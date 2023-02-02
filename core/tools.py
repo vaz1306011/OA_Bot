@@ -1,10 +1,11 @@
 from functools import partial
+from typing import Optional
 
 from discord.ext.commands import Context
 
 
 async def ctx_send(
-    ctx: Context, *msg, color: str | None = None, sep: str = " ", **kwargs
+    ctx: Context, *msg, color: Optional[str] = None, sep: str = " ", **kwargs
 ):
     """
     傳送系統訊息

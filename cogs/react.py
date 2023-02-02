@@ -1,4 +1,5 @@
 import random
+from typing import Optional
 
 import discord
 from discord import app_commands
@@ -11,9 +12,15 @@ from core.classes import Cog_Extension
 
 
 class React(Cog_Extension):
-    @commands.command(brief="清理訊息")
+    @commands.command()
     @commands.check(is_owner)
     async def cls(self, ctx: Context, num: int = 0):
+        """清理訊息
+
+        Args:
+            ctx (Context): ctx
+            num (int, optional): 要刪除的訊息數量
+        """
         if ctx.message.reference is not None:
             msg_id = ctx.message.reference.message_id
             num = 0
@@ -24,20 +31,36 @@ class React(Cog_Extension):
 
         await ctx.channel.purge(limit=max(0, num) + 1)
 
-    @app_commands.command(description="隨機產生6位數網址")
+    @app_commands.command(nsfw=True)
     async def nhentai(self, interaction: discord.Interaction):
+        """隨機產生6位數網址
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
         random_6digit = random.choice(self.DATA["nhentai"])
         await interaction.response.send_message(
             f"https://nhentai.net/g/{random_6digit}"
         )
 
-    @app_commands.command(description="讓機器人說話")
+    @app_commands.command()
     async def say(self, interaction: discord.Interaction, message: str):
         await interaction.response.send_message("已發送訊息", ephemeral=True)
+        """讓機器人說話
+
+        Args:
+            interaction (discord.Interaction): interaction
+            message (str): 要讓機器人說的話
+        """
         await interaction.channel.send(message)
 
-    @app_commands.command(description="顯示小說下載雲端連結")
+    @app_commands.command()
     async def novel(self, interaction: discord.Interaction):
+        """獲取小說雲端網址
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
         embed = discord.Embed(
             title="小說雲端網址",
             url=self.URL["novel"],
@@ -48,31 +71,51 @@ class React(Cog_Extension):
     async def vow(
         self,
         interaction: discord.Interaction,
-        number_of_people: int = None,
-        member1: discord.Member | None = None,
-        member2: discord.Member | None = None,
-        member3: discord.Member | None = None,
-        member4: discord.Member | None = None,
-        member5: discord.Member | None = None,
-        member6: discord.Member | None = None,
-        member7: discord.Member | None = None,
-        member8: discord.Member | None = None,
-        member9: discord.Member | None = None,
-        member10: discord.Member | None = None,
+        extra_participants_count: int = 0,
+        member1: Optional[discord.Member] = None,
+        member2: Optional[discord.Member] = None,
+        member3: Optional[discord.Member] = None,
+        member4: Optional[discord.Member] = None,
+        member5: Optional[discord.Member] = None,
+        member6: Optional[discord.Member] = None,
+        member7: Optional[discord.Member] = None,
+        member8: Optional[discord.Member] = None,
+        member9: Optional[discord.Member] = None,
+        member10: Optional[discord.Member] = None,
     ):
+        """猜拳
+
+        Args:
+            interaction (discord.Interaction): interaction
+            extra_participants_count (int, optional): 非指定參與者人數
+            member1 (Optional[discord.Member], optional): 指定參與者1
+            member2 (Optional[discord.Member], optional): 指定參與者2
+            member3 (Optional[discord.Member], optional): 指定參與者3
+            member4 (Optional[discord.Member], optional): 指定參與者4
+            member5 (Optional[discord.Member], optional): 指定參與者5
+            member6 (Optional[discord.Member], optional): 指定參與者6
+            member7 (Optional[discord.Member], optional): 指定參與者7
+            member8 (Optional[discord.Member], optional): 指定參與者8
+            member9 (Optional[discord.Member], optional): 指定參與者9
+            member10 (Optional[discord.Member], optional): 指定參與者10
+
+        Returns:
+            _type_: _description_
+        """
+
         class VOWView(View):
             def __init__(
                 self,
-                n: int | None = 0,
-                participant: set | None = None,
-                timeout: float | None = None,
+                extra_participants_count: int,
+                participants: set[discord.Member],
+                timeout: Optional[float] = None,
             ) -> None:
                 """猜拳按鈕
 
                 Args:
-                    n (int | None, optional): 人數. Defaults to None.
-                    participant (list | None, optional): 參與者清單. Defaults to None.
-                    timeout (float, optional): View持續時間. Defaults to None.
+                    n (int): 非指定參與者人數
+                    participant (set): 指定參與者清單
+                    timeout (float, optional): View持續時間
                 """
                 super().__init__(timeout=timeout)
 
@@ -204,23 +247,38 @@ class React(Cog_Extension):
     async def roll(
         self,
         interaction: discord.Interaction,
-        n: int | None = None,
-        m: int | None = None,
     ):
         match n, m:
             case None, None:
                 n, m = 1, 20
+        """骰骰子
 
             case n, None:
                 n, m = min(1, n), max(1, n)
 
             case n, m:
                 n, m = min(n, m), max(n, m)
+        Args:
+            interaction (discord.Interaction): interaction
+            min (Optional[int], optional): 骰出的最小值(預設為1)
+            max (Optional[int], optional): 骰出的最大值(預設為20)
+        """
+        await interaction.response.defer()
+        if min > max:
+            await interaction.followup.send("最小值不可大於最大值")
+            return
 
         await interaction.response.send_message(f"從{n}到{m}骰出 {random.randint(n, m)}")
 
     @app_commands.command(description="隨機選擇器")
     async def choose(self, interaction: discord.Interaction, n: int, m: int):
+        """隨機選擇器
+
+        Args:
+            interaction (discord.Interaction): interaction
+            n (int): 從上n條訊息中選擇
+            m (int): 選擇m條訊息
+        """
         await interaction.response.defer()
         msgs = [
             msg.content

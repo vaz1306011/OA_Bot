@@ -1,3 +1,5 @@
+from typing import Optional
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -18,7 +20,7 @@ class Id(Cog_Extension):
     async def member(
         self,
         interaction: discord.Interaction,
-        member: discord.Member | None = None,
+        member: Optional[discord.Member] = None,
     ):
         if member is not None:
             await interaction.response.send_message(
