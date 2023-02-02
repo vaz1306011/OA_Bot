@@ -11,7 +11,7 @@ cogs = glob.glob("*.py", root_dir="cogs")
 cogs = list(map(lambda x: x[:-3], cogs))
 
 bot = Bot(
-    command_prefix="!",
+    command_prefix="$",
     intents=discord.Intents.all(),
     description="老屁股機器人",
 )
