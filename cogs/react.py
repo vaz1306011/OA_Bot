@@ -239,7 +239,7 @@ class React(Cog_Extension):
 
         mentions_string = " ".join((member.mention for member in members))
         extra_participants_count_string = (
-            f"你們{extra_participants_count}個" if extra_participants_count > 2 else "你"
+            f"你們{extra_participants_count}個" if extra_participants_count > 1 else "你"
         )
 
         if members_count > 0 and extra_participants_count > 0:
