@@ -22,9 +22,6 @@ class React(Cog_Extension):
             ctx (Context): ctx
             num (int, optional): 要刪除的訊息數量
         """
-        if num <= 0:
-            return
-
         if ctx.message.reference is not None:
             msg_id = ctx.message.reference.message_id
             num = 0
@@ -32,6 +29,9 @@ class React(Cog_Extension):
                 if msg.id == msg_id:
                     break
                 num += 1
+
+        if num <= 0:
+            return
 
         await ctx.channel.purge(limit=max(0, num) + 1)
 
