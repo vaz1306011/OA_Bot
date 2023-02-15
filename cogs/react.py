@@ -275,23 +275,25 @@ class React(Cog_Extension):
         await interaction.followup.send(f"從{min}到{max}骰出 {random.randint(min, max)}")
 
     @app_commands.command(description="隨機選擇器")
-    async def choose(self, interaction: discord.Interaction, n: int, m: int):
+    async def choose(self, interaction: discord.Interaction, n: int, m: int = 1):
         """隨機選擇器
 
         Args:
             interaction (discord.Interaction): interaction
-            n (int): 從上n條訊息中選擇
+            n (int): 從上n條訊息中選擇(最多20)
             m (int): 選擇m條訊息
         """
         await interaction.response.defer()
-        msgs = [
-            msg.content
-            async for msg in interaction.channel.history(
-                limit=n, before=interaction.created_at
-            )
-        ]
+        msgs = []
+        async for message in interaction.channel.history(
+            limit=min(n, 20), before=interaction.created_at
+        ):
+            if message.author.bot:
+                break
+            msgs.append(message.content)
+
         await interaction.followup.send("\n".join(random.sample(msgs, k=m)))
-        await interaction.channel.purge(limit=n, before=interaction.created_at)
+        await interaction.channel.purge(limit=len(msgs), before=interaction.created_at)
 
 
 async def setup(bot: commands.Bot):
