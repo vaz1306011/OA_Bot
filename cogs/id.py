@@ -16,12 +16,18 @@ class Id(Cog_Extension):
 
     id_group = app_commands.Group(name="id", description="id指令群組")
 
-    @id_group.command(description="成員id")
+    @id_group.command()
     async def member(
         self,
         interaction: discord.Interaction,
         member: Optional[discord.Member] = None,
     ):
+        """查詢成員id
+
+        Args:
+            interaction (discord.Interaction): interaction
+            member (Optional[discord.Member], optional): 成員(預設為自己)
+        """
         if member is not None:
             await interaction.response.send_message(
                 f"{member} 成員的ID為: {member.id}", ephemeral=True
@@ -31,13 +37,33 @@ class Id(Cog_Extension):
                 f"你的ID為: {interaction.user.id}", ephemeral=True
             )
 
-    @id_group.command(description="身分組id")
+    @id_group.command()
     async def role(self, interaction: discord.Interaction, role: discord.Role):
+        """查詢身分組id
+
+        Args:
+            interaction (discord.Interaction): interaction
+            role (discord.Role): 身分組
+        """
         await interaction.response.send_message(
             f"{role} 身分組的ID為: {role.id}", ephemeral=True
         )
 
-    @id_group.command(description="顯示頻道id")
+    @id_group.command()
+    async def message(
+        self, interaction: discord.Interaction, message: discord.Message, n: int
+    ):
+        """查詢訊息id
+
+        Args:
+            interaction (discord.Interaction): interaction
+            message (discord.Message): 訊息
+            n (int): 第幾個訊息
+        """
+        # TODO怎麼取得訊息id
+        ...
+
+    @id_group.command()
     async def channel(
         self,
         interaction: discord.Interaction,
@@ -47,15 +73,26 @@ class Id(Cog_Extension):
         | discord.CategoryChannel
         | None = None,
     ):
+        """查詢頻道id
+
+        Args:
+            interaction (discord.Interaction): interaction
+            channel (discord.TextChannel | discord.VoiceChannel | discord.StageChannel | discord.CategoryChannel | None, optional): 頻道(預設為當前頻道)
+        """
         if channel is None:
             channel = interaction.channel
         await interaction.response.send_message(
             f"{channel.name} 頻道的ID為: {channel.id}", ephemeral=True
         )
 
-    @id_group.command(description="顯示伺服器的id")
+    @id_group.command()
     @app_commands.check(is_owner)
     async def guild(self, interaction: discord.Interaction):
+        """查詢伺服器id
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
         await interaction.response.send_message(
             f"{interaction.guild} 伺服器的ID為: {interaction.guild.id}", ephemeral=True
         )
