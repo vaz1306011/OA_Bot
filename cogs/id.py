@@ -50,14 +50,12 @@ class Id(Cog_Extension):
         )
 
     @id_group.command()
-    async def message(
-        self, interaction: discord.Interaction, message: discord.Message, n: int
-    ):
+    async def message(self, interaction: discord.Interaction, message: str, n: int):
         """查詢訊息id
 
         Args:
             interaction (discord.Interaction): interaction
-            message (discord.Message): 訊息
+            message (str): 訊息
             n (int): 第幾個訊息
         """
         # TODO怎麼取得訊息id
