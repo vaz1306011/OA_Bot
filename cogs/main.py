@@ -20,11 +20,9 @@ class Main(Cog_Extension):
         cog_name = cog_name.value
         try:
             await self.bot.load_extension(f"cogs.{cog_name}")
-            await interaction.followup.send(f"已載入 {cog_name} 模塊", ephemeral=True)
+            await interaction.followup.send(f"已載入 {cog_name} 模塊")
         except Exception as e:
-            await interaction.followup.send(
-                f"載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
-            )
+            await interaction.followup.send(f"載入模塊 {cog_name} 失敗，原因為: {e}")
 
     @app_commands.command(description="卸載模塊")
     @app_commands.check(is_owner)
@@ -33,11 +31,9 @@ class Main(Cog_Extension):
         cog_name = cog_name.value
         try:
             await self.bot.unload_extension(f"cogs.{cog_name}")
-            await interaction.followup.send(f"已卸載 {cog_name} 模塊", ephemeral=True)
+            await interaction.followup.send(f"已卸載 {cog_name} 模塊")
         except Exception as e:
-            await interaction.followup.send(
-                f"卸載模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
-            )
+            await interaction.followup.send(f"卸載模塊 {cog_name} 失敗，原因為: {e}")
 
     @app_commands.command(description="重新載入模塊")
     @app_commands.check(is_owner)
@@ -57,7 +53,7 @@ class Main(Cog_Extension):
                     except:
                         pass
 
-                await interaction.followup.send("已重新載入所有Cog", ephemeral=True)
+                await interaction.followup.send("已重新載入所有Cog")
             else:
                 try:
                     await self.bot.unload_extension(f"cogs.{cog_name}")
@@ -66,7 +62,7 @@ class Main(Cog_Extension):
                 finally:
                     await self.bot.load_extension(f"cogs.{cog_name}")
 
-                await interaction.followup.send(f"已重新載入 {cog_name} 模塊", ephemeral=True)
+                await interaction.followup.send(f"已重新載入 {cog_name} 模塊")
 
         except commands.ExtensionNotLoaded as e:
             pass
@@ -87,7 +83,7 @@ class Main(Cog_Extension):
                 f"已同步{len(synced)}條指令，{len(synced_oa)}條OA指令", ephemeral=True
             )
         else:
-            await interaction.followup.send(f"已同步{len(synced)}條指令", ephemeral=True)
+            await interaction.followup.send(f"已同步{len(synced)}條指令")
 
     @app_commands.command(description="設置機器人狀態")
     @app_commands.check(is_owner)
@@ -139,7 +135,7 @@ class Main(Cog_Extension):
                     status=discord.Status.offline, activity=activity
                 )
 
-        await interaction.followup.send(f"已設定狀態", ephemeral=True)
+        await interaction.followup.send(f"已設定狀態")
 
     @app_commands.command(description="顯示ping值")
     async def ping(self, interaction: discord.Interaction):

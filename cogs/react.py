@@ -54,9 +54,9 @@ class React(Cog_Extension):
             interaction (discord.Interaction): interaction
             message (str): 要讓機器人說的話
         """
-        await interaction.response.defer()
-        await interaction.followup.send("已發送訊息", ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         await interaction.channel.send(message)
+        await interaction.followup.send("已發送訊息")
 
     @app_commands.command()
     async def novel(self, interaction: discord.Interaction):
