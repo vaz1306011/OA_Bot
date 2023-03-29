@@ -284,6 +284,16 @@ class React(Cog_Extension):
         await interaction.followup.send(resault)
         await interaction.channel.purge(limit=len(msgs), before=interaction.created_at)
 
+    @app_commands.command()
+    async def vote(self, interaction: discord.Interaction, n: int):
+        """投票
+
+        Args:
+            interaction (discord.Interaction): interaction
+            n (str): 投票參數
+        """
+        await interaction.response.defer()
+
 
 async def setup(bot: commands.Bot):
     print("已讀取React")
