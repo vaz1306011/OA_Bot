@@ -119,8 +119,8 @@ class React(Cog_Extension):
                 """猜拳按鈕
 
                 Args:
-                    n (int): 非指定參與者人數
-                    participant (set): 指定參與者清單
+                    extra_participants_count (int): 非指定參與者人數
+                    participants (set): 指定參與者清單
                     timeout (float, optional): View持續時間
                 """
                 super().__init__(timeout=timeout)
