@@ -259,7 +259,7 @@ class React(Cog_Extension):
 
         await interaction.followup.send(f"從{min}到{max}骰出 {random.randint(min, max)}")
 
-    @app_commands.command(description="隨機選擇器")
+    @app_commands.command()
     async def choose(self, interaction: discord.Interaction, n: int, m: int = 1):
         """隨機選擇器
 
@@ -277,7 +277,11 @@ class React(Cog_Extension):
                 break
             msgs.append(message.content)
 
-        await interaction.followup.send("\n".join(random.sample(msgs, k=m)))
+        sources_list = "、".join(msgs)
+        selected_items = "、".join(random.sample(msgs, k=m))
+        resault = f"從 {sources_list}\n選出 " + selected_items
+
+        await interaction.followup.send(resault)
         await interaction.channel.purge(limit=len(msgs), before=interaction.created_at)
 
 
