@@ -1,5 +1,6 @@
 import random
 import re
+from functools import partial
 from typing import Optional
 
 import discord
@@ -181,37 +182,21 @@ class React(Cog_Extension):
                         )
                         await interaction.channel.send(embed=embed)
 
-                async def V_cb(interaction: discord.Interaction):
+                async def callback(interaction: discord.Interaction, *, choice: str):
                     await interaction.response.defer()
                     if not check_participant(interaction.user.id):
                         return
 
-                    self.clicked_people[interaction.user.id] = "✌🏽剪刀"
-                    await check_result(interaction)
-
-                async def O_cb(interaction: discord.Interaction):
-                    await interaction.response.defer()
-                    if not check_participant(interaction.user.id):
-                        return
-
-                    self.clicked_people[interaction.user.id] = "✊🏽石頭"
-                    await check_result(interaction)
-
-                async def W_cb(interaction: discord.Interaction):
-                    await interaction.response.defer()
-                    if not check_participant(interaction.user.id):
-                        return
-
-                    self.clicked_people[interaction.user.id] = "✋🏽布"
+                    self.clicked_people[interaction.user.id] = choice
                     await check_result(interaction)
 
                 V = Button(label="剪刀", emoji="✌🏽")
                 O = Button(label="石頭", emoji="✊🏽")
                 W = Button(label="布", emoji="✋🏽")
 
-                V.callback = V_cb
-                O.callback = O_cb
-                W.callback = W_cb
+                V.callback = partial(callback, choice="✌🏽剪刀")
+                O.callback = partial(callback, choice="✊🏽石頭")
+                W.callback = partial(callback, choice="✋🏽布")
 
                 for choice in (V, O, W):
                     self.add_item(choice)
