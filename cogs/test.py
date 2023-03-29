@@ -1,8 +1,11 @@
+from functools import partial
+from typing import Optional
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 from discord.ext.commands import Context
-from discord.ui import Button, View
+from discord.ui import Button, Modal, TextInput, View
 
 from core.check import is_owner
 from core.classes import Cog_Extension
@@ -114,9 +117,76 @@ class Test(Cog_Extension):
     @test_group.command()
     @app_commands.check(is_owner)
     async def test4(self, interaction: discord.Interaction):
-        await interaction.response.send_message(
-            interaction.guild.get_member(449546373445058563).nick, ephemeral=True
-        )
+        await interaction.response.defer()
+
+    @test_group.command()
+    async def test5(self, interaction: discord.Interaction, content: str):
+        class MyView(discord.ui.View):
+            def __init__(self, *, timeout: Optional[float] = None):
+                super().__init__(timeout=timeout)
+                self.voted = dict()
+
+                add_btn = Button(
+                    label="+",
+                    style=discord.ButtonStyle.success,
+                )
+                add_btn.callback = self.create_cb
+                self.add_item(add_btn)
+
+                add_btn = Button(label="-", style=discord.ButtonStyle.red)
+                add_btn.callback = self.destroy_cb
+                self.add_item(add_btn)
+
+                add_btn = Button(label="c", style=discord.ButtonStyle.blurple)
+                add_btn.callback = self.clean_cb
+                self.add_item(add_btn)
+
+                add_btn = Button(
+                    label="=",
+                    style=discord.ButtonStyle.gray,
+                )
+                add_btn.callback = self.end_cb
+                self.add_item(add_btn)
+
+                add_btn = Button(
+                    label="test",
+                    style=discord.ButtonStyle.success,
+                    disabled=True,
+                )
+                self.add_item(add_btn)
+
+            async def create_cb(self, interaction: discord.Interaction):
+                class QuestionModal(Modal, title="新增選項"):
+                    answer = TextInput(label="新增的選項", placeholder="選項", max_length=80)
+
+                    async def on_submit(
+                        _self, _interaction: discord.Interaction
+                    ) -> None:
+                        await _interaction.response.defer()
+                        self.create_button(_self.answer.value)
+                        await interaction.edit_original_response(view=self)
+
+                await interaction.response.send_modal(QuestionModal())
+
+            async def destroy_cb(self, interaction: discord.Interaction):
+                await interaction.response.defer()
+
+            async def clean_cb(self, interaction: discord.Interaction):
+                self._children = self._children[:5]
+                await interaction.response.edit_message(view=self)
+
+            async def end_cb(self, interaction: discord.Interaction):
+                await interaction.response.defer()
+
+            def create_button(self, label: str):
+                async def call_back(interaction: discord.Interaction, *, label):
+                    await interaction.response.defer()
+
+                new_btn = Button(label=label, style=discord.ButtonStyle.blurple)
+                new_btn.callback = partial(call_back, label=label)
+                self.add_item(new_btn)
+
+        await interaction.response.send_message(content, view=MyView())
 
 
 async def setup(bot: commands.Bot):
