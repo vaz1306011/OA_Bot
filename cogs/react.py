@@ -184,6 +184,10 @@ class React(Cog_Extension):
                         )
                         await interaction.channel.send(embed=embed)
 
+                V = Button(label="剪刀", emoji="✌🏽")
+                O = Button(label="石頭", emoji="✊🏽")
+                W = Button(label="布", emoji="✋🏽")
+
                 async def callback(interaction: discord.Interaction, *, choice: str):
                     await interaction.response.defer()
                     if not check_participant(interaction.user.id):
@@ -191,10 +195,6 @@ class React(Cog_Extension):
 
                     self.clicked_people[interaction.user.id] = choice
                     await check_result(interaction)
-
-                V = Button(label="剪刀", emoji="✌🏽")
-                O = Button(label="石頭", emoji="✊🏽")
-                W = Button(label="布", emoji="✋🏽")
 
                 V.callback = partial(callback, choice="✌🏽剪刀")
                 O.callback = partial(callback, choice="✊🏽石頭")
@@ -221,7 +221,7 @@ class React(Cog_Extension):
         members_count = len(members)
 
         if members_count + extra_participants_count < 2:
-            await interaction.followup.send("人數不足")
+            await interaction.followup.send("人數不足", ephemeral=True)
             return
 
         mentions_string = " ".join((member.mention for member in members))
