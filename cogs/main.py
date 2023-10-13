@@ -143,6 +143,35 @@ class Main(Cog_Extension):
             f"{round(self.bot.latency*1000)}毫秒", ephemeral=True
         )
 
+    @app_commands.command(description="顯示幫助訊息")
+    async def help(
+        self, interaction: discord.Interaction, cog_name: Literal["id"] = None
+    ):
+        embed = discord.Embed(title="普通使用者可以用的指令")
+        embed.set_author(
+            name="OA_Bot",
+            icon_url="https://cdn.discordapp.com/app-icons/799467265010565120/0fa1c461084546f2f69fca5a05046de3.png?size=512&quot",
+        )
+        match cog_name:
+            case None:
+                embed.add_field(name="/ping", value="顯示ping值", inline=True)
+                embed.add_field(name="/nhentai", value="隨機產生6位數網址", inline=True)
+                embed.add_field(name="/say", value="讓機器人說話", inline=True)
+                embed.add_field(name="/novel", value="獲取小說雲端網址", inline=True)
+                embed.add_field(name="/vow", value="猜拳", inline=True)
+                embed.add_field(name="/roll", value="骰骰子", inline=True)
+                embed.add_field(name="/choose", value="隨機選擇器", inline=True)
+                embed.add_field(name="/vote", value="投票", inline=True)
+
+            case "id":
+                embed.add_field(name="/id member", value="查詢成員id", inline=True)
+                embed.add_field(name="/id role", value="查詢身分組id", inline=True)
+                embed.add_field(name="/id message", value="查詢訊息id", inline=True)
+                embed.add_field(name="/id channel", value="查詢頻道id", inline=True)
+                embed.add_field(name="/id guild", value="查詢伺服器id", inline=True)
+
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot):
     print("已讀取Main")
