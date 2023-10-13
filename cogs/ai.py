@@ -14,7 +14,6 @@ class AI(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_message(self, msg: discord.Message):
-
         if msg.channel.id == self.CHANNEL["ai問答"]:
             if is_exception_content(msg):
                 return
@@ -111,8 +110,9 @@ class AI(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取AI")
-    await bot.add_cog(AI(bot))
+    ...
+    # print("已讀取AI")
+    # await bot.add_cog(AI(bot))
 
 
 async def teardown(bot: commands.Bot):
