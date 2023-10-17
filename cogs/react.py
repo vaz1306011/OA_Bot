@@ -7,36 +7,31 @@ from typing import Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.ext.commands import Context
 from discord.ui import Button, Modal, TextInput, View
 
-from core.check import is_owner
 from core.classes import Cog_Extension
 from core.data import GUILD
 
 
 class React(Cog_Extension):
-    @commands.command()
-    @commands.check(is_owner)
-    async def cls(self, ctx: Context, num: int = 0):
-        """清理訊息
+    def __init__(self, bot: commands.Bot):
+        super().__init__(bot)
+        cls = app_commands.ContextMenu(name="清理之後的訊息", callback=self.clear_after)
+        self.bot.tree.add_command(cls)
+
+    async def clear_after(
+        self, interaction: discord.Interaction, message: discord.Message
+    ):
+        """清理之後的訊息
 
         Args:
-            ctx (Context): ctx
-            num (int, optional): 要刪除的訊息數量
+            interaction (discord.Interaction): interaction
         """
-        if ctx.message.reference is not None:
-            msg_id = ctx.message.reference.message_id
-            num = 0
-            async for msg in ctx.channel.history():
-                if msg.id == msg_id:
-                    break
-                num += 1
-
-        if num <= 0:
-            return
-
-        await ctx.channel.purge(limit=max(0, num) + 1)
+        await interaction.response.defer(ephemeral=True)
+        deleted = await interaction.channel.purge(
+            check=lambda msg: msg.id >= message.id
+        )
+        await interaction.followup.send(f"已刪除{len(deleted)}則訊息")
 
     @app_commands.command(nsfw=True)
     async def nhentai(self, interaction: discord.Interaction):
