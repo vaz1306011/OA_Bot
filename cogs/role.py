@@ -14,7 +14,6 @@ class Role(Cog_Extension):
     role_group = app_commands.Group(name="role", description="身分組指令群組")
 
     @role_group.command(description="給定使用者身分組")
-    @app_commands.check(is_owner)
     async def add(
         self,
         interaction: discord.Interaction,
@@ -27,7 +26,6 @@ class Role(Cog_Extension):
         )
 
     @role_group.command(description="移除使用者身分組")
-    @app_commands.check(is_owner)
     async def remove(
         self,
         interaction: discord.Interaction,

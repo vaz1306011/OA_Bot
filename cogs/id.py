@@ -4,7 +4,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.check import is_owner
 from core.classes import Cog_Extension
 
 
@@ -84,7 +83,6 @@ class Id(Cog_Extension):
         )
 
     @id_group.command()
-    @app_commands.check(is_owner)
     async def guild(self, interaction: discord.Interaction):
         """查詢伺服器id
 
