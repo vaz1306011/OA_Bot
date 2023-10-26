@@ -6,6 +6,7 @@ from typing import Optional
 
 import discord
 from discord import app_commands
+from discord.app_commands.errors import AppCommandError
 from discord.ext import commands
 from discord.ui import Button, Modal, TextInput, View
 
@@ -17,8 +18,10 @@ class React(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
         cls = app_commands.ContextMenu(name="清理之後的訊息", callback=self.clear_after)
+        cls.error(self.clear_after_error)
         self.bot.tree.add_command(cls)
 
+    @app_commands.checks.has_permissions(manage_messages=True)
     async def clear_after(
         self, interaction: discord.Interaction, message: discord.Message
     ):
@@ -32,6 +35,12 @@ class React(Cog_Extension):
             check=lambda msg: msg.id >= message.id
         )
         await interaction.followup.send(f"已刪除{len(deleted)}則訊息")
+
+    async def clear_after_error(
+        self, interaction: discord.Interaction, error: AppCommandError
+    ):
+        if isinstance(error, app_commands.errors.MissingPermissions):
+            await interaction.response.send_message("你沒有權限", ephemeral=True)
 
     @app_commands.command(nsfw=True)
     async def nhentai(self, interaction: discord.Interaction):
@@ -265,7 +274,6 @@ class React(Cog_Extension):
             n (int): 從上n條訊息中選擇(最多20)
             m (int): 選擇m條訊息
         """
-        await interaction.response.defer()
         msgs = []
         async for message in interaction.channel.history(
             limit=min(n, 20), before=interaction.created_at
@@ -274,12 +282,23 @@ class React(Cog_Extension):
                 break
             msgs.append(message.content)
 
+        if len(msgs) < n:
+            raise app_commands.errors.AppCommandError("傻逼,訊息不夠多")
+
+        msgs.reverse()
         sources_list = "、".join(msgs)
         selected_items = "、".join(random.sample(msgs, k=m))
         resault = f"從 {sources_list}\n選出 " + selected_items
 
-        await interaction.followup.send(resault)
+        await interaction.response.send_message(resault)
         await interaction.channel.purge(limit=len(msgs), before=interaction.created_at)
+
+    @choose.error
+    async def choose_error(
+        self, interaction: discord.Interaction, error: AppCommandError
+    ):
+        if isinstance(error, AppCommandError):
+            await interaction.response.send_message(error, ephemeral=True)
 
     @app_commands.command()
     async def vote(self, interaction: discord.Interaction, content: str):
