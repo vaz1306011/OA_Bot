@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from core.check import is_exception_content
 from core.classes import Cog_Extension
+from core.data import PRESENCE
 
 
 class Event(Cog_Extension):
@@ -18,8 +19,11 @@ class Event(Cog_Extension):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{now}] - OA_Bot上線")
 
-        game = discord.Game(name="吸娜娜奇")
-        await self.bot.change_presence(status=discord.Status.idle, activity=game)
+        activity = discord.Activity(
+            type=PRESENCE["type"], name=PRESENCE["name"], url=PRESENCE["url"]
+        )
+
+        await self.bot.change_presence(status=PRESENCE["status"], activity=activity)
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 

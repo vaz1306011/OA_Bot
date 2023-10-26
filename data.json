@@ -1,6 +1,15 @@
 {
+  "presence": {
+    "status": "online",
+    "type": 1,
+    "name": "毛茸茸ソス",
+    "url": "https://www.youtube.com/watch?v=v2OfAqSy-tg"
+  },
   "user_id": {
-    "owner_ids": [449546373445058563, 437200686019772416],
+    "owner_ids": [
+      449546373445058563,
+      437200686019772416
+    ],
     "Sofia": 339036838842990592
   },
   "role": {

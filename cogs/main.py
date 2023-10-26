@@ -1,9 +1,5 @@
 import enum
-from ast import mod
-from calendar import c
-from dis import disco
-from re import sub
-from turtle import textinput
+import json
 from typing import Literal, Optional
 
 import discord
@@ -14,6 +10,7 @@ from discord.ui import Modal, Select, TextInput, View
 import bot
 from core.check import is_owner
 from core.classes import Cog_Extension
+from core.data import DATA
 
 
 class Main(Cog_Extension):
@@ -185,11 +182,27 @@ class Main(Cog_Extension):
                 else:
                     url = None
 
-                activity = discord.Activity(name=name, type=type_, url=url)
+                activity = discord.Activity(type=type_, name=name, url=url)
                 await self.bot.change_presence(
                     status=self.status.values[0], activity=activity
                 )
                 await interaction.response.edit_message(content="設定完成", view=None)
+                DATA["presence"] = {
+                    "status": self.status.values[0],
+                    "type": type_,
+                    "name": name,
+                    "url": url,
+                }
+                json.dump(
+                    DATA,
+                    open(
+                        "data.json",
+                        "w",
+                        encoding="utf8",
+                    ),
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
         view = StatusSelectView(self.bot)
         await interaction.response.send_message(view=view, ephemeral=True)
