@@ -1,9 +1,15 @@
 import enum
+from ast import mod
+from calendar import c
+from dis import disco
+from re import sub
+from turtle import textinput
 from typing import Literal, Optional
 
 import discord
-from discord import app_commands
+from discord import SelectOption, app_commands
 from discord.ext import commands
+from discord.ui import Modal, Select, TextInput, View
 
 import bot
 from core.check import is_owner
@@ -87,55 +93,106 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="設置機器人狀態")
     @app_commands.check(is_owner)
-    async def set_status(
-        self,
-        interaction: discord.Interaction,
-        status: Literal["線上", "閒置", "請勿打擾", "離線"],
-        activity: Literal["正在玩", "正在直播", "正在看", "正在聽", "競爭"] | None = None,
-        name: Optional[str] = None,
-        url: Optional[str] = None,
-    ):
-        await interaction.response.defer(ephemeral=True)
-        if activity is not None:
-            match activity:
-                case "正在玩":
-                    activity = discord.Game(name=name)
-                case "正在直播":
-                    activity = discord.Activity(
-                        name=name, type=discord.ActivityType.streaming, url=url
-                    )
-                case "正在看":
-                    activity = discord.Activity(
-                        name=name, type=discord.ActivityType.watching
-                    )
-                case "正在聽":
-                    activity = discord.Activity(
-                        name=name, type=discord.ActivityType.listening
-                    )
-                case "競爭":
-                    activity = discord.Activity(
-                        name=name, type=discord.ActivityType.competing
-                    )
+    async def set_status(self, interaction: discord.Interaction):
+        class QuestionModal(Modal, title="輸入活動名稱"):
+            name = TextInput(label="活動名稱")
 
-        match status:
-            case "線上":
-                await self.bot.change_presence(
-                    status=discord.Status.online, activity=activity
-                )
-            case "閒置":
-                await self.bot.change_presence(
-                    status=discord.Status.idle, activity=activity
-                )
-            case "請勿打擾":
-                await self.bot.change_presence(
-                    status=discord.Status.dnd, activity=activity
-                )
-            case "離線":
-                await self.bot.change_presence(
-                    status=discord.Status.offline, activity=activity
+            async def on_submit(self, interaction: discord.Interaction) -> None:
+                await interaction.response.defer()
+
+        class StatusSelectView(View):
+            def __init__(self, bot: commands.Bot):
+                super().__init__()
+                self.bot = bot
+                self.textInput = None
+                # self.activity_name = Select(options=[SelectOption(label="無")], row=2)
+                # self.add_item(self.activity_name)
+
+            @discord.ui.select(
+                placeholder="選擇狀態",
+                options=[
+                    SelectOption(label="線上", value="online"),
+                    SelectOption(label="閒置", value="idle"),
+                    SelectOption(label="請勿打擾", value="dnd"),
+                    SelectOption(label="離線", value="offline"),
+                ],
+            )
+            async def status(self, interaction: discord.Interaction, select: Select):
+                await interaction.response.defer()
+
+            @discord.ui.select(
+                placeholder="選擇活動",
+                options=[
+                    SelectOption(label="無", value="4"),
+                    SelectOption(label="正在玩", value="0"),
+                    SelectOption(label="正在直播", value="1"),
+                    SelectOption(label="正在聽", value="2"),
+                    SelectOption(label="正在看", value="3"),
+                    SelectOption(label="競爭", value="5"),
+                ],
+            )
+            async def activity(self, interaction: discord.Interaction, select: Select):
+                selected = select.values[0]
+
+                # 沒有活動
+                if selected == "4":
+                    await interaction.response.defer()
+                    return
+
+                # 活動輸入框
+                self.textInput = QuestionModal()
+
+                # 如果是直播,添加直播網址
+                if selected == "1":
+                    url = TextInput(label="直播網址")
+                    self.textInput.add_item(url)
+
+                # 顯示輸入框
+                await interaction.response.send_modal(self.textInput)
+                await self.textInput.wait()
+
+                # label = f"{self.textInput.name.value} {self.textInput.children[1].value if len(self.textInput.children) >= 2 else ''}"
+                # # print(label)
+                # print(self.children[0])
+                # self.activity_name._underlying.options[0] = SelectOption(
+                #     label=label, default=True
+                # )
+                # await interaction.edit_original_response(view=self)
+
+            # @discord.ui.select(disabled=True, options=[SelectOption(label="無")])
+            # async def activity_name(
+            #     self, interaction: discord.Interaction, select: Select
+            # ):
+            #     await interaction.response.defer()
+
+            @discord.ui.button(label="確定", style=discord.ButtonStyle.green)
+            async def submit(
+                self, interaction: discord.Interaction, button: discord.ui.Button
+            ):
+                type_ = (
+                    int(self.activity.values[0])
+                    if self.activity.values[0].isdigit()
+                    else None
                 )
 
-        await interaction.followup.send(f"已設定狀態")
+                if type_ != 4:
+                    name = self.textInput.name.value
+                else:
+                    name = None
+
+                if type_ == 1:
+                    url = self.textInput.children[1].value
+                else:
+                    url = None
+
+                activity = discord.Activity(name=name, type=type_, url=url)
+                await self.bot.change_presence(
+                    status=self.status.values[0], activity=activity
+                )
+                await interaction.response.edit_message(content="設定完成", view=None)
+
+        view = StatusSelectView(self.bot)
+        await interaction.response.send_message(view=view, ephemeral=True)
 
     @app_commands.command(description="顯示ping值")
     async def ping(self, interaction: discord.Interaction):
