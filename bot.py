@@ -26,8 +26,8 @@ async def setup():
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(setup())
-    except Exception as e:
-        print(e)
-        os.system("kill 1")
+    # try:
+    asyncio.run(setup())
+    # except Exception as e:
+    #     print(e)
+    #     os.system("kill 1")
