@@ -225,18 +225,16 @@ class Main(Cog_Extension):
         match cog_name:
             case None:
                 embed.add_field(name="/ping", value="顯示ping值", inline=True)
-                embed.add_field(name="/nhentai", value="隨機產生6位數網址", inline=True)
-                embed.add_field(name="/say", value="讓機器人說話", inline=True)
-                embed.add_field(name="/novel", value="獲取小說雲端網址", inline=True)
                 embed.add_field(name="/vow", value="猜拳", inline=True)
-                embed.add_field(name="/roll", value="骰骰子", inline=True)
-                embed.add_field(name="/choose", value="隨機選擇器", inline=True)
                 embed.add_field(name="/vote", value="投票", inline=True)
+                embed.add_field(name="/roll", value="骰骰子", inline=True)
+                embed.add_field(name="/say", value="讓機器人說話", inline=True)
+                embed.add_field(name="/nhentai", value="隨機產生6位數網址", inline=True)
+                embed.add_field(name="/novel", value="獲取小說雲端網址", inline=True)
 
             case "id":
                 embed.add_field(name="/id member", value="查詢成員id", inline=True)
                 embed.add_field(name="/id role", value="查詢身分組id", inline=True)
-                embed.add_field(name="/id message", value="查詢訊息id", inline=True)
                 embed.add_field(name="/id channel", value="查詢頻道id", inline=True)
                 embed.add_field(name="/id guild", value="查詢伺服器id", inline=True)
 
