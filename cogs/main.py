@@ -5,16 +5,27 @@ from typing import Literal, Optional
 import discord
 from discord import SelectOption, app_commands
 from discord.ext import commands
+from discord.ext.commands import Context
 from discord.ui import Modal, Select, TextInput, View
 
 import bot
 from core.check import is_owner
 from core.classes import Cog_Extension
 from core.data import DATA
+from core.tools import ctx_send
 
 
 class Main(Cog_Extension):
     Cogs = enum.Enum("Cog", {cog: cog for cog in (["*"] + bot.cogs)})
+
+    @commands.command()
+    async def fsync(self, ctx: Context):
+        synced = await self.bot.tree.sync()
+        synced_oa = await self.bot.tree.sync(guild=discord.Object(self.GUILD["老屁股"]))
+        if ctx.guild.id == self.GUILD["老屁股"]:
+            await ctx_send(ctx, f"已同步{len(synced)}條指令，{len(synced_oa)}條OA指令")
+        else:
+            await ctx_send(ctx, f"已同步{len(synced)}條指令")
 
     @app_commands.command(description="載入模塊")
     @app_commands.check(is_owner)
