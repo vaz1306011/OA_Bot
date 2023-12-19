@@ -240,7 +240,15 @@ class React(Cog_Extension):
         await interaction.followup.send(f"從{min}到{max}骰出 {random.randint(min, max)}")
 
     @app_commands.command()
-    async def vote(self, interaction: discord.Interaction, content: str):
+    async def vote(
+        self,
+        interaction: discord.Interaction,
+        content: str,
+        only_creater_close: bool = True,
+        only_creater_add: bool = False,
+        only_creater_remove: bool = False,
+        only_creater_clean: bool = True,
+    ):
         """投票
 
         Args:
@@ -251,6 +259,7 @@ class React(Cog_Extension):
         class VoteView(discord.ui.View):
             def __init__(self, content, *, timeout: Optional[float] = None):
                 super().__init__(timeout=timeout)
+                self.author_id = interaction.user.id
                 self.content = content
                 self.votes = dict()
                 self.init_button()
@@ -259,24 +268,83 @@ class React(Cog_Extension):
                 self.clear_items()
                 check_vote_btn = Button(emoji="📋", style=discord.ButtonStyle.success)
                 close_btn = Button(emoji="✔️", style=discord.ButtonStyle.blurple)
-                create_btn = Button(emoji="➕", style=discord.ButtonStyle.success)
-                destroy_btn = Button(emoji="➖", style=discord.ButtonStyle.red)
+                add_btn = Button(emoji="➕", style=discord.ButtonStyle.success)
+                remove_btn = Button(emoji="➖", style=discord.ButtonStyle.red)
                 clean_btn = Button(label="C", style=discord.ButtonStyle.gray)
 
                 check_vote_btn.callback = self.__check_votes_cb
                 close_btn.callback = self.__close_cb
-                create_btn.callback = self.__create_cb
-                destroy_btn.callback = self.__remove_cb
+                add_btn.callback = self.__add_cb
+                remove_btn.callback = self.__remove_cb
                 clean_btn.callback = self.__clean_cb
 
                 for btn in (
                     check_vote_btn,
                     close_btn,
-                    create_btn,
-                    destroy_btn,
+                    add_btn,
+                    remove_btn,
                     clean_btn,
                 ):
                     self.add_item(btn)
+
+            async def __check_votes_cb(self, interaction: discord.Interaction):
+                """檢查誰有投票(按鈕callback)
+
+                Args:
+                    interaction (discord.Interaction): interaction
+                """
+                await interaction.response.defer()
+                await interaction.followup.send(
+                    embed=discord.Embed(
+                        title="目前已投票:",
+                        description="\n".join(
+                            (
+                                interaction.guild.get_member(user).mention
+                                for user in self.votes.keys()
+                            )
+                        ),
+                    ),
+                    ephemeral=True,
+                )
+
+            async def __close_cb(self, interaction: discord.Interaction):
+                """關閉投票(按鈕callback)
+
+                Args:
+                    interaction (discord.Interaction): interaction
+                """
+                await interaction.response.defer()
+
+                # 別人不能投票
+                if only_creater_close and interaction.user.id != self.author_id:
+                    await interaction.followup.send("只有作者可以關閉投票", ephemeral=True)
+                    return
+
+                # 增加0票的選項
+                if not self.votes:
+                    await interaction.followup.send("還沒有人投票", ephemeral=True)
+                    return
+                vote_counts = Counter(self.votes.values())
+                all_options = [btn.label for btn in self.children[5:]]
+                for option in all_options:
+                    vote_counts.setdefault(option, 0)
+
+                # 計算結果
+                most_common_options = []
+                other_options = []
+                for option, vcount in vote_counts.most_common():
+                    if vcount == vote_counts.most_common(1)[0][1]:
+                        most_common_options.append(f"{vcount}票{option}")
+                    else:
+                        other_options.append(f"{vcount}票{option}")
+
+                description = f"結果: "
+                description += "、".join(most_common_options) + "👑"
+                if other_options:
+                    description += f"\n其他: {'、'.join(other_options)}"
+
+                embed = discord.Embed(title=self.content, description=description)
+                await interaction.edit_original_response(embed=embed, view=None)
 
             def _add_option(self, option: str):
                 """新增選項
@@ -294,12 +362,16 @@ class React(Cog_Extension):
                 new_btn.callback = partial(call_back, choice=option)
                 self.add_item(new_btn)
 
-            async def __create_cb(self, interaction: discord.Interaction):
+            async def __add_cb(self, interaction: discord.Interaction):
                 """新增選項(按鈕callback)
 
                 Args:
                     interaction (discord.Interaction): interaction
                 """
+                if only_creater_add and interaction.user.id != self.author_id:
+                    await interaction.response.defer()
+                    await interaction.followup.send("只有作者可以新增選項", ephemeral=True)
+                    return
 
                 class QuestionModal(Modal, title="新增選項"):
                     answer = TextInput(label="選項", placeholder="選項", max_length=80)
@@ -319,6 +391,10 @@ class React(Cog_Extension):
                 Args:
                     interaction (discord.Interaction): interaction
                 """
+                if only_creater_remove and interaction.user.id != self.author_id:
+                    await interaction.response.defer()
+                    await interaction.followup.send("只有作者可以刪除選項", ephemeral=True)
+                    return
 
                 class QuestionModal(Modal, title="刪除選項"):
                     answer = TextInput(label="index", placeholder="index", max_length=2)
@@ -356,59 +432,15 @@ class React(Cog_Extension):
                     interaction (discord.Interaction): interaction
                 """
                 await interaction.response.defer()
+
+                if only_creater_clean and interaction.user.id != self.author_id:
+                    await interaction.followup.send("只有作者可以清空選項", ephemeral=True)
+                    return
+
                 self.votes.clear()
                 self._children = self._children[:5]
                 await interaction.followup.send("已清空", ephemeral=True)
                 await interaction.edit_original_response(view=self)
-
-            async def __check_votes_cb(self, interaction: discord.Interaction):
-                """檢查誰有投票(按鈕callback)
-
-                Args:
-                    interaction (discord.Interaction): interaction
-                """
-                await interaction.response.defer()
-                await interaction.followup.send(
-                    embed=discord.Embed(
-                        title="目前已投票:",
-                        description="\n".join(
-                            (
-                                interaction.guild.get_member(user).mention
-                                for user in self.votes.keys()
-                            )
-                        ),
-                    ),
-                    ephemeral=True,
-                )
-
-            async def __close_cb(self, interaction: discord.Interaction):
-                await interaction.response.defer()
-
-                # 增加0票的選項
-                if not self.votes:
-                    await interaction.followup.send("還沒有人投票", ephemeral=True)
-                    return
-                vote_counts = Counter(self.votes.values())
-                all_options = [btn.label for btn in self.children[5:]]
-                for option in all_options:
-                    vote_counts.setdefault(option, 0)
-
-                # 計算結果
-                most_common_options = []
-                other_options = []
-                for option, vcount in vote_counts.most_common():
-                    if vcount == vote_counts.most_common(1)[0][1]:
-                        most_common_options.append(f"{vcount}票{option}")
-                    else:
-                        other_options.append(f"{vcount}票{option}")
-
-                description = f"結果: "
-                description += "、".join(most_common_options) + "👑"
-                if other_options:
-                    description += f"\n其他: {'、'.join(other_options)}"
-
-                embed = discord.Embed(title=self.content, description=description)
-                await interaction.edit_original_response(embed=embed, view=None)
 
         embed = discord.Embed(title=content)
         await interaction.response.send_message(embed=embed, view=VoteView(content))
