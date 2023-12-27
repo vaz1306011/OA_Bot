@@ -1,9 +1,12 @@
 import os
 import random
 import re
+import sqlite3
 
 import discord
 import openai
+from discord import app_commands
+from discord.app_commands import MissingPermissions
 from discord.ext import commands
 
 from core.check import is_exception_content
@@ -12,6 +15,10 @@ from core.data import PRESENCE
 
 
 class Event(Cog_Extension):
+    def __init__(self, bot: commands.Bot):
+        super().__init__(bot)
+        self.conn_dom = sqlite3.connect("./data/on_message_ignore.db")
+
     @commands.Cog.listener()
     async def on_ready(self):
         from datetime import datetime
@@ -27,6 +34,8 @@ class Event(Cog_Extension):
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 
+    omi_group = app_commands.Group(name="omi", description="關鍵字檢測指令群組")
+
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         content = re.sub(r"https?://\S{2,}\b", "", message.content)
@@ -34,7 +43,9 @@ class Event(Cog_Extension):
         if is_exception_content(message):
             return
 
-        if message.channel.id == self.CHANNEL["ai問答"]:
+        disabled = self.check_in_omi(message)
+
+        if disabled:
             return
 
         # 中獎判斷
@@ -43,10 +54,6 @@ class Event(Cog_Extension):
 
         if random.randint(1, 22_000_000) == 1:
             await message.channel.send("2200萬分之一的機率,威力彩頭獎", reference=message)
-
-        # Sofia檢測
-        if message.author.id == self.USER_ID["Sofia"]:
-            return
 
         # 關鍵字判斷
         if any(word in content for word in ("笑", "草", "ww")):
@@ -59,6 +66,122 @@ class Event(Cog_Extension):
         if re.search(r"[確雀][實石食]", content):
             word = random.choice(("確實", "雀石", "雀食"))
             await message.channel.send(word)
+
+    def check_in_omi(self, message):
+        try:
+            cursor = self.conn_dom.cursor()
+            disabled = any(
+                (
+                    cursor.execute(
+                        "SELECT 1 FROM guilds WHERE id = ?",
+                        (message.guild.id,),
+                    ).fetchone(),
+                    cursor.execute(
+                        "SELECT 1 FROM channels WHERE id = ?",
+                        (message.channel.id,),
+                    ).fetchone(),
+                    cursor.execute(
+                        "SELECT 1 FROM users WHERE id = ?",
+                        (message.author.id,),
+                    ).fetchone(),
+                )
+            )
+        finally:
+            cursor.close()
+        return disabled
+
+    def omi_insert(self, table: str, id: int, name: str) -> bool:
+        try:
+            cursor = self.conn_dom.cursor()
+            cursor.execute(
+                f"INSERT OR IGNORE INTO {table} VALUES (?, ?)",
+                (id, name),
+            )
+            self.conn_dom.commit()
+        finally:
+            cursor.close()
+
+    def omi_delete(self, table: str, id: int) -> bool:
+        try:
+            cursor = self.conn_dom.cursor()
+            cursor.execute(
+                f"DELETE FROM {table} WHERE id = ?",
+                (id,),
+            )
+            self.conn_dom.commit()
+        finally:
+            cursor.close()
+
+    @omi_group.command()
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def guild(self, interaction: discord.Interaction, status: bool):
+        """忽略伺服器的關鍵字檢測
+
+        Args:
+            interaction (discord.Interaction): interaction
+            status (bool): 開關
+        """
+        if status:
+            self.omi_insert(
+                "guilds",
+                interaction.guild_id,
+                interaction.guild.name,
+            )
+        else:
+            self.omi_delete("guilds", interaction.guild_id)
+
+        await interaction.response.send_message(
+            f"已**{'忽略' if status else '啟用'}**此伺服器的關鍵字檢測", ephemeral=True
+        )
+
+    @omi_group.command()
+    @app_commands.checks.has_permissions(manage_channels=True)
+    async def channel(self, interaction: discord.Interaction, status: bool):
+        """忽略頻道的關鍵字檢測
+
+        Args:
+            interaction (discord.Interaction): interaction
+            status (bool): 開關
+        """
+        if status:
+            self.omi_insert(
+                "channels",
+                interaction.channel_id,
+                interaction.channel.name,
+            )
+        else:
+            self.omi_delete("channels", interaction.channel_id)
+
+        await interaction.response.send_message(
+            f"已**{'忽略' if status else '啟用'}**此頻道的關鍵字檢測", ephemeral=True
+        )
+
+    @guild.error
+    @channel.error
+    async def guild_and_channel_error(self, interaction: discord.Interaction, error):
+        if isinstance(error, MissingPermissions):
+            await interaction.response.send_message("你沒有權限這麼做", ephemeral=True)
+
+    @omi_group.command()
+    async def me(self, interaction: discord.Interaction, status: bool):
+        """忽略你的關鍵字檢測
+
+        Args:
+            interaction (discord.Interaction): interaction
+            status (bool): 開關
+        """
+        if status:
+            self.omi_insert(
+                "users",
+                interaction.user.id,
+                interaction.user.name,
+            )
+        else:
+            self.omi_delete("users", interaction.user.id)
+
+        await interaction.response.send_message(
+            f"已**{'忽略' if status else '啟用'}**你的關鍵字檢測", ephemeral=True
+        )
 
 
 async def setup(bot: commands.Bot):

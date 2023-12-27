@@ -20,12 +20,20 @@
 
 ---
 
+### 開啟/關閉 關鍵字檢測功能
+
+    /omi guild <status>
+    /omi channel <status>
+    /omi user <status>
+
+---
+
 ### 查詢成員、身分組、頻道、伺服器等 id
 
-    /id member [member]
+    /id guild
     /id role <role>
     /id channel <channel>
-    /id guild
+    /id member [member]
 
 ---
 
