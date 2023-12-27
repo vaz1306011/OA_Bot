@@ -1,3 +1,4 @@
+cogs/test.py
 data/*.db
 
 # Byte-compiled / optimized / DLL files
