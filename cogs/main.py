@@ -1,6 +1,5 @@
-import enum
 import json
-from typing import Literal, Optional
+from typing import Literal
 
 import discord
 from discord import SelectOption, app_commands
@@ -8,7 +7,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Modal, Select, TextInput, View
 
-import bot
+from bot import CogType
 from core.check import is_owner
 from core.classes import Cog_Extension
 from core.data import DATA
@@ -16,8 +15,6 @@ from core.tools import ctx_send
 
 
 class Main(Cog_Extension):
-    Cogs = enum.Enum("Cog", {cog: cog for cog in (["*"] + bot.cogs)})
-
     @commands.command()
     async def fsync(self, ctx: Context):
         synced = await self.bot.tree.sync()
@@ -29,7 +26,7 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="載入模塊")
     @app_commands.check(is_owner)
-    async def load(self, interaction: discord.Interaction, cog_name: Cogs):
+    async def load(self, interaction: discord.Interaction, cog_name: CogType):
         await interaction.response.defer(ephemeral=True)
         cog_name = cog_name.value
         try:
@@ -40,7 +37,7 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="卸載模塊")
     @app_commands.check(is_owner)
-    async def unload(self, interaction: discord.Interaction, cog_name: Cogs):
+    async def unload(self, interaction: discord.Interaction, cog_name: CogType):
         await interaction.response.defer(ephemeral=True)
         cog_name = cog_name.value
         try:
@@ -51,19 +48,15 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="重新載入模塊")
     @app_commands.check(is_owner)
-    async def reload(
-        self,
-        interaction: discord.Interaction,
-        cog_name: Cogs,
-    ):
+    async def reload(self, interaction: discord.Interaction, cog_name: CogType):
         await interaction.response.defer(ephemeral=True)
         cog_name = cog_name.value
         try:
             if cog_name == "*":
-                for cmd in bot.cogs:
+                for cog in CogType:
                     try:
-                        await self.bot.unload_extension(f"cogs.{cmd}")
-                        await self.bot.load_extension(f"cogs.{cmd}")
+                        await self.bot.unload_extension(f"cogs.{cog.name}")
+                        await self.bot.load_extension(f"cogs.{cog.name}")
                     except:
                         pass
 

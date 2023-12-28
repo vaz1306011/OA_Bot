@@ -1,4 +1,5 @@
 import asyncio
+import enum
 import glob
 import os
 
@@ -6,9 +7,10 @@ import discord
 from discord.ext.commands import Bot
 
 token = os.environ.get("OA_BOT_TOKEN")
+__cogs = glob.glob("*.py", root_dir="cogs")
+__cogs = list(map(lambda x: x[:-3], __cogs))
+CogType = enum.Enum("Cog", {cog: cog for cog in (["*"] + __cogs)})
 
-cogs = glob.glob("*.py", root_dir="cogs")
-cogs = list(map(lambda x: x[:-3], cogs))
 
 bot = Bot(
     command_prefix="$",
@@ -19,8 +21,10 @@ bot = Bot(
 
 
 async def setup():
-    for cog in cogs:
-        await bot.load_extension(f"cogs.{cog}")
+    for cog in CogType:
+        if cog.name == "*":
+            continue
+        await bot.load_extension(f"cogs.{cog.name}")
 
     await bot.start(token)
 
