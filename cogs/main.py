@@ -219,7 +219,7 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="顯示幫助訊息")
     async def help(
-        self, interaction: discord.Interaction, cog_name: Literal["id"] = None
+        self, interaction: discord.Interaction, cog_name: Literal["id", "omi"] = None
     ):
         embed = discord.Embed(title="普通使用者可以用的指令")
         embed.set_author(
@@ -241,6 +241,11 @@ class Main(Cog_Extension):
                 embed.add_field(name="/id role", value="查詢身分組id", inline=True)
                 embed.add_field(name="/id channel", value="查詢頻道id", inline=True)
                 embed.add_field(name="/id guild", value="查詢伺服器id", inline=True)
+
+            case "omi":
+                embed.add_field(name="/omi guild", value="忽略伺服器的關鍵字檢測", inline=True)
+                embed.add_field(name="/omi channel", value="忽略頻道的關鍵字檢測", inline=True)
+                embed.add_field(name="/omi me", value="忽略你的關鍵字檢測", inline=True)
 
         await interaction.response.send_message(embed=embed)
 
