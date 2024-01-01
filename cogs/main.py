@@ -200,7 +200,7 @@ class Main(Cog_Extension):
                 json.dump(
                     DATA,
                     open(
-                        "data.json",
+                        "./data/data.json",
                         "w",
                         encoding="utf8",
                     ),

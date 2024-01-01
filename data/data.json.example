@@ -1,0 +1,13 @@
+{
+  "presence": {
+    "status": "online",
+    "type": 1,
+    "name": "example Activity Name",
+    "url": "https://example.com"
+  },
+  "user_id": {
+    "owner_ids": [
+      1234567890
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 import json
 
-with open("data.json", "r", encoding="utf8") as f:
+with open("./data/data.json", "r", encoding="utf8") as f:
     _data: dict = json.load(f)
 
 DATA: dict = _data
