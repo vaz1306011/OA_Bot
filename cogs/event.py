@@ -67,7 +67,15 @@ class Event(Cog_Extension):
             word = random.choice(("確實", "雀石", "雀食"))
             await message.channel.send(word)
 
-    def check_in_omi(self, message):
+    def check_in_omi(self, message: discord.Message) -> bool:
+        """檢查是否在忽略名單
+
+        Args:
+            message (discord.Message): message
+
+        Returns:
+            bool: 是否在忽略名單
+        """
         try:
             cursor = self.conn_dom.cursor()
             disabled = any(
@@ -88,9 +96,17 @@ class Event(Cog_Extension):
             )
         finally:
             cursor.close()
+
         return disabled
 
-    def omi_insert(self, table: str, id: int, name: str) -> bool:
+    def omi_insert(self, table: str, id: int, name: str):
+        """新增忽略
+
+        Args:
+            table (str): 資料表
+            id (int): id
+            name (str): 名稱
+        """
         try:
             cursor = self.conn_dom.cursor()
             cursor.execute(
@@ -101,7 +117,13 @@ class Event(Cog_Extension):
         finally:
             cursor.close()
 
-    def omi_delete(self, table: str, id: int) -> bool:
+    def omi_delete(self, table: str, id: int):
+        """刪除忽略
+
+        Args:
+            table (str): 資料表
+            id (int): id
+        """
         try:
             cursor = self.conn_dom.cursor()
             cursor.execute(
