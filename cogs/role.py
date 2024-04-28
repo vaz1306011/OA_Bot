@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from core.check import is_owner
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class Role(Cog_Extension):
@@ -39,10 +40,10 @@ class Role(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Role")
     await bot.add_cog(Role(bot))
+    logger.info("已讀取 Role 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Role")
     await bot.remove_cog("Role")
+    logger.info("已移除 Role 模塊")

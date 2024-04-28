@@ -10,6 +10,7 @@ from discord.ext import commands
 from discord.ui import Button, Modal, TextInput, View
 
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class React(Cog_Extension):
@@ -121,7 +122,7 @@ class React(Cog_Extension):
                     return False
 
                 async def check_result(interaction: discord.Interaction):
-                    print(
+                    logger.info(
                         re.sub(
                             r"\d+",
                             lambda matched: interaction.guild.get_member(
@@ -204,11 +205,15 @@ class React(Cog_Extension):
 
         mentions_string = " ".join((member.mention for member in members))
         extra_participants_count_string = (
-            f"你們{extra_participants_count}個" if extra_participants_count > 1 else "你"
+            f"你們{extra_participants_count}個"
+            if extra_participants_count > 1
+            else "你"
         )
 
         if members_count > 0 and extra_participants_count > 0:
-            content = f"{mentions_string}還有{extra_participants_count_string}先別吵過來猜拳"
+            content = (
+                f"{mentions_string}還有{extra_participants_count_string}先別吵過來猜拳"
+            )
         elif members_count > 0 and extra_participants_count == 0:
             content = f"{mentions_string}先別吵過來猜拳"
         elif members_count == 0 and extra_participants_count > 0:
@@ -237,7 +242,9 @@ class React(Cog_Extension):
             await interaction.followup.send("最小值不可大於最大值")
             return
 
-        await interaction.followup.send(f"從{min}到{max}骰出 {random.randint(min, max)}")
+        await interaction.followup.send(
+            f"從{min}到{max}骰出 {random.randint(min, max)}"
+        )
 
     @app_commands.command()
     async def vote(
@@ -317,7 +324,9 @@ class React(Cog_Extension):
 
                 # 別人不能投票
                 if only_creater_close and interaction.user.id != self.author_id:
-                    await interaction.followup.send("只有作者可以關閉投票", ephemeral=True)
+                    await interaction.followup.send(
+                        "只有作者可以關閉投票", ephemeral=True
+                    )
                     return
 
                 # 增加0票的選項
@@ -357,7 +366,9 @@ class React(Cog_Extension):
                 async def call_back(interaction: discord.Interaction, *, choice: str):
                     await interaction.response.defer()
                     self.votes[interaction.user.id] = choice
-                    await interaction.followup.send("你已選擇 " + choice, ephemeral=True)
+                    await interaction.followup.send(
+                        "你已選擇 " + choice, ephemeral=True
+                    )
 
                 new_btn.callback = partial(call_back, choice=option)
                 self.add_item(new_btn)
@@ -370,7 +381,9 @@ class React(Cog_Extension):
                 """
                 if only_creater_add and interaction.user.id != self.author_id:
                     await interaction.response.defer()
-                    await interaction.followup.send("只有作者可以新增選項", ephemeral=True)
+                    await interaction.followup.send(
+                        "只有作者可以新增選項", ephemeral=True
+                    )
                     return
 
                 class QuestionModal(Modal, title="新增選項"):
@@ -393,7 +406,9 @@ class React(Cog_Extension):
                 """
                 if only_creater_remove and interaction.user.id != self.author_id:
                     await interaction.response.defer()
-                    await interaction.followup.send("只有作者可以刪除選項", ephemeral=True)
+                    await interaction.followup.send(
+                        "只有作者可以刪除選項", ephemeral=True
+                    )
                     return
 
                 class QuestionModal(Modal, title="刪除選項"):
@@ -408,7 +423,9 @@ class React(Cog_Extension):
                 try:
                     n = int(modal.answer.value) - 1 + 5
                 except ValueError:
-                    await interaction.followup.send("請輸入小於選項數量的正整數", ephemeral=True)
+                    await interaction.followup.send(
+                        "請輸入小於選項數量的正整數", ephemeral=True
+                    )
                 except Exception as e:
                     await interaction.followup.send(e)
                 else:
@@ -434,7 +451,9 @@ class React(Cog_Extension):
                 await interaction.response.defer()
 
                 if only_creater_clean and interaction.user.id != self.author_id:
-                    await interaction.followup.send("只有作者可以清空選項", ephemeral=True)
+                    await interaction.followup.send(
+                        "只有作者可以清空選項", ephemeral=True
+                    )
                     return
 
                 self.votes.clear()
@@ -447,9 +466,10 @@ class React(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取React")
     await bot.add_cog(React(bot))
+    logger.info("已讀取 React 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除React")
+    await bot.remove_cog("React")
+    logger.info("已卸載 React 模塊")

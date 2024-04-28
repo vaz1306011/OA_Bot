@@ -11,6 +11,7 @@ from bot import CogType
 from core.check import is_owner
 from core.classes import Cog_Extension
 from core.data import DATA
+from core.logger import logger
 from core.tools import ctx_send
 
 
@@ -180,6 +181,9 @@ class Main(Cog_Extension):
                 await self.bot.change_presence(
                     status=self.status.values[0], activity=activity
                 )
+                logger.info(
+                    f"已設置機器人狀態: {self.status.values[0]} {activity.type=} {activity.name=} {activity.url=}"
+                )
                 await interaction.response.edit_message(content="設定完成", view=None)
                 DATA["presence"] = {
                     "status": self.status.values[0],
@@ -233,18 +237,22 @@ class Main(Cog_Extension):
                 embed.add_field(name="/id guild", value="查詢伺服器id", inline=True)
 
             case "omi":
-                embed.add_field(name="/omi guild", value="忽略伺服器的關鍵字檢測", inline=True)
-                embed.add_field(name="/omi channel", value="忽略頻道的關鍵字檢測", inline=True)
+                embed.add_field(
+                    name="/omi guild", value="忽略伺服器的關鍵字檢測", inline=True
+                )
+                embed.add_field(
+                    name="/omi channel", value="忽略頻道的關鍵字檢測", inline=True
+                )
                 embed.add_field(name="/omi me", value="忽略你的關鍵字檢測", inline=True)
 
         await interaction.response.send_message(embed=embed)
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Main")
     await bot.add_cog(Main(bot))
+    logger.info("已讀取 Main 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Main")
     await bot.remove_cog("Main")
+    logger.info("已移除 Main 模塊")

@@ -1,6 +1,7 @@
 from discord.ext import commands
 
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class Task(Cog_Extension):
@@ -18,10 +19,10 @@ class Task(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Task")
     await bot.add_cog(Task(bot))
+    logger.info("已讀取 Task 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Task")
     await bot.remove_cog("Task")
+    logger.info("已移除 Task 模塊")

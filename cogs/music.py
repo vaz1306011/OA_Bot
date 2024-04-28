@@ -13,6 +13,7 @@ from discord.ui import Modal, Select, TextInput, View
 from discord.voice_client import VoiceClient
 
 from core.classes import Cog_Extension
+from core.logger import logger
 
 # YDL_OPTIONS = {"format": "bestaudio", "noplaylist": "True"}
 YDL_OPTIONS = {
@@ -187,7 +188,9 @@ class Music(Cog_Extension):
         else:
             play_list.insert(music, index)
 
-        await msg.edit(content=f"[**{music.name}**]({music.webpage_url}) 已加入到待播清單中")
+        await msg.edit(
+            content=f"[**{music.name}**]({music.webpage_url}) 已加入到待播清單中"
+        )
 
     @app_commands.command()
     async def disconnect(self, interaction: discord.Interaction):
@@ -197,7 +200,9 @@ class Music(Cog_Extension):
             interaction (discord.Interaction): 交互事件
         """
         if not interaction.guild.voice_client:
-            await interaction.response.send_message("機器人不在任何語音頻道中", ephemeral=True)
+            await interaction.response.send_message(
+                "機器人不在任何語音頻道中", ephemeral=True
+            )
             return
 
         self.play_lists.pop(interaction.guild.id).clear_all()
@@ -310,10 +315,10 @@ class Music(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Music")
     await bot.add_cog(Music(bot))
+    logger.info("已讀取 Music 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Music")
     await bot.remove_cog("Music")
+    logger.info("已移除 Music 模塊")

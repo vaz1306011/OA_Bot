@@ -7,6 +7,7 @@ from discord.ext import commands
 from discord.ui import Modal, TextInput
 
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class ContextMenu(Cog_Extension):
@@ -58,7 +59,9 @@ class ContextMenu(Cog_Extension):
                 await interaction.response.defer()
 
         if message.author.bot:
-            await interaction.response.send_message("不能選擇機器人的訊息", ephemeral=True)
+            await interaction.response.send_message(
+                "不能選擇機器人的訊息", ephemeral=True
+            )
             return
 
         modal = QuestionModal()
@@ -80,9 +83,10 @@ class ContextMenu(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取ContextMenu")
     await bot.add_cog(ContextMenu(bot))
+    logger.info("已讀取 ContextMenu 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除ContextMenu")
+    await bot.remove_cog("ContextMenu")
+    logger.info("已移除 ContextMenu 模塊")

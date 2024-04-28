@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from core.check import is_exception_content
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class AI(Cog_Extension):
@@ -111,10 +112,10 @@ class AI(Cog_Extension):
 
 async def setup(bot: commands.Bot):
     ...
-    # print("已讀取AI")
     # await bot.add_cog(AI(bot))
+    # logger.info("已讀取 AI 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除AI")
     await bot.remove_cog("AI")
+    logger.info("已移除 AI 模塊")

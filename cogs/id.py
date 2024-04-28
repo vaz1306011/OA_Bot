@@ -5,10 +5,10 @@ from discord import app_commands
 from discord.ext import commands
 
 from core.classes import Cog_Extension
+from core.logger import logger
 
 
 class Id(Cog_Extension):
-
     """
     id指令群組
     """
@@ -64,11 +64,13 @@ class Id(Cog_Extension):
     async def channel(
         self,
         interaction: discord.Interaction,
-        channel: discord.TextChannel
-        | discord.VoiceChannel
-        | discord.StageChannel
-        | discord.CategoryChannel
-        | None = None,
+        channel: (
+            discord.TextChannel
+            | discord.VoiceChannel
+            | discord.StageChannel
+            | discord.CategoryChannel
+            | None
+        ) = None,
     ):
         """查詢頻道id
 
@@ -95,10 +97,10 @@ class Id(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Id")
     await bot.add_cog(Id(bot))
+    logger.info("已讀取 Id 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Id")
     await bot.remove_cog("Id")
+    logger.info("已移除 Id 模塊")

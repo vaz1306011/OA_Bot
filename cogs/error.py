@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 
 from core.classes import Cog_Extension
+from core.logger import logger
 from core.tools import ctx_send_red
 
 
@@ -60,10 +61,10 @@ class Error(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Error")
     await bot.add_cog(Error(bot))
+    logger.info("已讀取 Error 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Error")
     await bot.remove_cog("Error")
+    logger.info("已移除 Error 模塊")

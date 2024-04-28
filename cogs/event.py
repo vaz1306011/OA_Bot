@@ -12,6 +12,7 @@ from discord.ext import commands
 from core.check import is_exception_content
 from core.classes import Cog_Extension
 from core.data import PRESENCE
+from core.logger import logger
 
 
 class Event(Cog_Extension):
@@ -21,10 +22,7 @@ class Event(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        from datetime import datetime
-
-        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"[{now}] - OA_Bot上線")
+        logger.info(f"OA_Bot上線")
 
         activity = discord.Activity(
             type=PRESENCE["type"], name=PRESENCE["name"], url=PRESENCE["url"]
@@ -53,7 +51,9 @@ class Event(Cog_Extension):
             await message.channel.send("10000分之1的機率,被雷劈", reference=message)
 
         if random.randint(1, 22_000_000) == 1:
-            await message.channel.send("2200萬分之一的機率,威力彩頭獎", reference=message)
+            await message.channel.send(
+                "2200萬分之一的機率,威力彩頭獎", reference=message
+            )
 
         # 關鍵字判斷
         if any(word in content for word in ("笑", "草", "ww")):
@@ -236,10 +236,10 @@ class Event(Cog_Extension):
 
 
 async def setup(bot: commands.Bot):
-    print("已讀取Event")
     await bot.add_cog(Event(bot))
+    logger.info("已讀取 Event 模塊")
 
 
 async def teardown(bot: commands.Bot):
-    print("已移除Event")
     await bot.remove_cog("Event")
+    logger.info("已移除 Event 模塊")
