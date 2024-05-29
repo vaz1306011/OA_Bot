@@ -5,8 +5,10 @@ import os
 
 import discord
 from discord.ext.commands import Bot
+from dotenv import load_dotenv
 
-token = os.environ.get("OA_BOT_TOKEN")
+load_dotenv()
+token = os.getenv("BOT_TOKEN")
 __cogs = glob.glob("*.py", root_dir="cogs")
 __cogs = list(map(lambda x: x[:-3], __cogs))
 CogType = enum.Enum("Cog", {cog: cog for cog in (["*"] + __cogs)})
