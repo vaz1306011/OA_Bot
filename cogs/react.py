@@ -42,14 +42,14 @@ class React(Cog_Extension):
 
     @app_commands.command()
     async def novel(self, interaction: discord.Interaction):
-        """獲取小說雲端網址
+        """希露菲的圖書館
 
         Args:
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer()
         embed = discord.Embed(
-            title="小說雲端網址",
+            title="希露菲的圖書館",
             url=self.URL["novel"],
         )
         await interaction.followup.send(embed=embed)
