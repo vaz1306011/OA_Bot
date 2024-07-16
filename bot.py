@@ -9,13 +9,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 token = os.getenv("BOT_TOKEN")
+command_prefix = os.getenv("COMMAND_PREFIX")
 __cogs = glob.glob("*.py", root_dir="cogs")
 __cogs = list(map(lambda x: x[:-3], __cogs))
 CogType = enum.Enum("Cog", {cog: cog for cog in (["*"] + __cogs)})
 
 
 bot = Bot(
-    command_prefix="$",
+    command_prefix=command_prefix,
     help_command=None,
     intents=discord.Intents.all(),
     description="老屁股機器人",
