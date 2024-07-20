@@ -192,7 +192,19 @@ class Music(Cog_Extension):
             content=f"[**{music.name}**]({music.webpage_url}) 已加入到待播清單中"
         )
 
-    @app_commands.command()
+    music_group = app_commands.Group(name="music", description="music指令群組")
+
+    @music_group.command()
+    async def gui(self, interaction: discord.Interaction):
+        """音樂播放器
+
+        Args:
+            interaction (discord.Interaction): 交互事件
+        """
+        # TODO音樂播放器
+        ...
+
+    @music_group.command()
     async def disconnect(self, interaction: discord.Interaction):
         """離開語音頻道
 
@@ -209,7 +221,7 @@ class Music(Cog_Extension):
         await interaction.guild.voice_client.disconnect()
         await interaction.response.send_message("已離開語音頻道")
 
-    @app_commands.command()
+    @music_group.command()
     async def play(
         self, interaction: discord.Interaction, music: str, index: int = None
     ):
@@ -240,7 +252,7 @@ class Music(Cog_Extension):
         if not vc.is_playing():
             self.__play_next(interaction.guild)
 
-    @app_commands.command()
+    @music_group.command()
     async def stop(self, interaction: discord.Interaction):
         """停止播放
 
@@ -251,7 +263,7 @@ class Music(Cog_Extension):
         vc.stop()
         await interaction.response.send_message(f"停止")
 
-    @app_commands.command()
+    @music_group.command()
     async def pause(self, interaction: discord.Interaction):
         """暫停播放
 
@@ -262,7 +274,7 @@ class Music(Cog_Extension):
         vc.pause()
         await interaction.response.send_message(f"暫停")
 
-    @app_commands.command()
+    @music_group.command()
     async def resume(self, interaction: discord.Interaction):
         """繼續播放
 
@@ -273,7 +285,7 @@ class Music(Cog_Extension):
         vc.resume()
         await interaction.response.send_message(f"繼續")
 
-    @app_commands.command()
+    @music_group.command()
     async def skip(self, interaction: discord.Interaction):
         """跳過目前播放的歌曲
 
@@ -284,7 +296,7 @@ class Music(Cog_Extension):
         vc.stop()
         await interaction.response.send_message(f"跳過")
 
-    @app_commands.command()
+    @music_group.command()
     async def play_list(self, interaction: discord.Interaction):
         """顯示播放清單
 
