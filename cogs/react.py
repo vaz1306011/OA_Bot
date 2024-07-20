@@ -41,16 +41,16 @@ class React(Cog_Extension):
         await interaction.followup.send("已發送訊息")
 
     @app_commands.command()
-    async def novel(self, interaction: discord.Interaction):
-        """希露菲的圖書館
+    async def ranobe(self, interaction: discord.Interaction):
+        """拉諾亞魔法大學的圖書館
 
         Args:
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer()
         embed = discord.Embed(
-            title="希露菲的圖書館",
-            url=self.URL["novel"],
+            title="拉諾亞魔法大學的圖書館",
+            url=self.URL["ranobe"],
         )
         await interaction.followup.send(embed=embed)
 
