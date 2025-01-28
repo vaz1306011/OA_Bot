@@ -9,6 +9,7 @@ openai = "==0.26.0"
 yt-dlp = "*"
 "discord.py" = {version = "==2.3.2", extras = ["voice"]}
 python-dotenv = "*"
+requests = "*"
 
 [dev-packages]
 

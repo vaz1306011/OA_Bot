@@ -41,9 +41,9 @@ class Event(Cog_Extension):
         if is_exception_content(message):
             return
 
-        disabled = self.check_in_omi(message)
+        omi_status = self.check_omi(message)
 
-        if disabled:
+        if omi_status:
             return
 
         # 中獎判斷
@@ -67,7 +67,7 @@ class Event(Cog_Extension):
             word = random.choice(("確實", "雀石", "雀食"))
             await message.channel.send(word)
 
-    def check_in_omi(self, message: discord.Message) -> bool:
+    def check_omi(self, message: discord.Message) -> bool:
         """檢查是否在忽略名單
 
         Args:
@@ -80,7 +80,8 @@ class Event(Cog_Extension):
             cursor = self.conn_dom.cursor()
             disabled = any(
                 (
-                    cursor.execute(
+                    message.guild
+                    and cursor.execute(
                         "SELECT 1 FROM guilds WHERE id = ?",
                         (message.guild.id,),
                     ).fetchone(),
