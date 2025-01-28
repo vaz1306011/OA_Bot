@@ -7,9 +7,9 @@ name = "pypi"
 aiohttp = ">=3.9.0"
 openai = "==0.26.0"
 yt-dlp = "*"
-"discord.py" = {version = "==2.3.2", extras = ["voice"]}
 python-dotenv = "*"
 requests = "*"
+"discord.py" = {extras = ["voice"], version = "==2.4.0"}
 
 [dev-packages]
 
