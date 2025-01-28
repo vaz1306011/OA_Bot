@@ -9,9 +9,28 @@ from core.logger import logger
 
 
 class Id(Cog_Extension):
+    def __init__(self, bot: commands.Bot):
+        super().__init__(bot)
+        find_message_id = discord.app_commands.ContextMenu(
+            name="查詢訊息id", callback=self.message
+        )
+        self.bot.tree.add_command(find_message_id)
+
     """
     id指令群組
     """
+
+    async def message(self, interaction: discord.Interaction, message: discord.Message):
+        """查詢訊息id
+
+        Args:
+            interaction (discord.Interaction): interaction
+            message (str): 訊息
+            n (int): 第幾個訊息
+        """
+        await interaction.response.send_message(
+            f"此訊息的ID為: {message.id}", ephemeral=True
+        )
 
     id_group = app_commands.Group(name="id", description="id指令群組")
 
@@ -47,18 +66,6 @@ class Id(Cog_Extension):
         await interaction.response.send_message(
             f"{role} 身分組的ID為: {role.id}", ephemeral=True
         )
-
-    @id_group.command()
-    async def message(self, interaction: discord.Interaction, message: str, n: int):
-        """查詢訊息id
-
-        Args:
-            interaction (discord.Interaction): interaction
-            message (str): 訊息
-            n (int): 第幾個訊息
-        """
-        # TODO怎麼取得訊息id
-        ...
 
     @id_group.command()
     async def channel(
