@@ -22,7 +22,8 @@ class Event(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        logger.info(f"OA_Bot上線")
+        bot_name = self.bot.user.name
+        logger.info(f"{bot_name} 上線")
 
         activity = discord.Activity(
             type=PRESENCE["type"], name=PRESENCE["name"], url=PRESENCE["url"]
