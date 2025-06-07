@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 from typing import Literal
 
 import discord
@@ -10,7 +11,6 @@ from discord.ui import Modal, Select, TextInput, View
 from bot import CogType
 from core.check import is_owner
 from core.classes import Cog_Extension
-from core.data import DATA
 from core.logger import logger
 from core.tools import ctx_send
 
@@ -185,14 +185,15 @@ class Main(Cog_Extension):
                     f"已設置機器人狀態: {self.status.values[0]} {activity.type=} {activity.name=} {activity.url=}"
                 )
                 await interaction.response.edit_message(content="設定完成", view=None)
-                DATA["presence"] = {
+                # self.bot.data.presence = {
+                Cog_Extension.data.presence = {
                     "status": self.status.values[0],
                     "type": type_,
                     "name": name,
                     "url": url,
                 }
                 json.dump(
-                    DATA,
+                    asdict(Cog_Extension.data),
                     open(
                         "./data/data.json",
                         "w",
@@ -201,6 +202,7 @@ class Main(Cog_Extension):
                     indent=2,
                     ensure_ascii=False,
                 )
+                logger.info("已儲存機器人狀態到data.json")
 
         view = StatusSelectView(self.bot)
         await interaction.response.send_message(view=view, ephemeral=True)

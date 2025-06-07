@@ -4,19 +4,21 @@ import discord
 from discord.ext.commands import Context
 
 from bot import bot
-from core.data import USER_ID
+from core.classes import Cog_Extension
 from core.tools import ctx_send_red
+
+# from core.data import USER_ID
 
 
 async def is_owner(msg: Context | discord.Interaction):
     if isinstance(msg, Context):
-        if not msg.author.id in USER_ID["owner_ids"]:
+        if not msg.author.id in Cog_Extension.data.user_id["owner_ids"]:
             await ctx_send_red(msg, "你沒有管理員權限")
             return False
         return True
 
     if isinstance(msg, discord.Interaction):
-        if not msg.user.id in USER_ID["owner_ids"]:
+        if not msg.user.id in Cog_Extension.data.user_id["owner_ids"]:
             await msg.response.send_message("你沒有管理員權限", ephemeral=True)
             return False
         return True

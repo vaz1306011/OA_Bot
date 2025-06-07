@@ -11,7 +11,6 @@ from discord.ext import commands
 
 from core.check import is_exception_content
 from core.classes import Cog_Extension
-from core.data import PRESENCE
 from core.logger import logger
 
 
@@ -26,10 +25,14 @@ class Event(Cog_Extension):
         logger.info(f"{bot_name} 上線")
 
         activity = discord.Activity(
-            type=PRESENCE["type"], name=PRESENCE["name"], url=PRESENCE["url"]
+            type=self.data.presence["type"],
+            name=self.data.presence["name"],
+            url=self.data.presence["url"],
         )
 
-        await self.bot.change_presence(status=PRESENCE["status"], activity=activity)
+        await self.bot.change_presence(
+            status=self.data.presence["status"], activity=activity
+        )
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 

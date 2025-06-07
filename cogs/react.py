@@ -25,7 +25,7 @@ class React(Cog_Extension):
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer()
-        random_6digit = random.choice(self.DATA["nhentai"])
+        random_6digit = random.choice(self.data["nhentai"])
         await interaction.followup.send(f"https://nhentai.net/g/{random_6digit}")
 
     @app_commands.command()
@@ -50,7 +50,7 @@ class React(Cog_Extension):
         await interaction.response.defer()
         embed = discord.Embed(
             title="拉諾亞魔法大學的圖書館",
-            url=self.URL["ranobe"],
+            url=self.data.url["ranobe"],
         )
         await interaction.followup.send(embed=embed)
 
@@ -64,7 +64,7 @@ class React(Cog_Extension):
         await interaction.response.defer()
         embed = discord.Embed(
             title="ロキシー先生の宿題",
-            url=self.URL["syukudai"],
+            url=self.data.url["syukudai"],
         )
         await interaction.followup.send(embed=embed)
 
