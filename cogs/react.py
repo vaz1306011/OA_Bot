@@ -55,6 +55,20 @@ class React(Cog_Extension):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
+    async def syukudai(self, interaction: discord.Interaction):
+        """宿題
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
+        await interaction.response.defer()
+        embed = discord.Embed(
+            title="ロキシー先生の宿題",
+            url=self.URL["syukudai"],
+        )
+        await interaction.followup.send(embed=embed)
+
+    @app_commands.command()
     async def vow(
         self,
         interaction: discord.Interaction,
