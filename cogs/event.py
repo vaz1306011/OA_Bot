@@ -229,7 +229,7 @@ class Event(Cog_Extension):
             cursor.close()
 
         def format_status(status: bool, name: str) -> str:
-            return f"{'+' if status else '-'} {name}: {'忽略' if status else '偵測'}"
+            return f"{'-' if status else '+'} {name}: {'忽略' if status else '偵測'}"
 
         await interaction.response.send_message(
             f"**忽略狀態:**\n```diff\n{format_status(guild_status, '伺服器')}\n{format_status(channel_status, '頻道')}\n{format_status(user_status, '你')}```",
