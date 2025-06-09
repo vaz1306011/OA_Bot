@@ -48,9 +48,16 @@ class React(Cog_Extension):
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer()
+
+        try:
+            url = self.data.url["ranobe"]
+        except (KeyError, TypeError):
+            await interaction.followup.send("拉諾亞魔法大學的圖書館休館中")
+            return
+
         embed = discord.Embed(
             title="拉諾亞魔法大學的圖書館",
-            url=self.data.url["ranobe"],
+            url=url,
         )
         await interaction.followup.send(embed=embed)
 
@@ -62,10 +69,14 @@ class React(Cog_Extension):
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer()
-        embed = discord.Embed(
-            title="ロキシー先生の宿題",
-            url=self.data.url["syukudai"],
-        )
+
+        try:
+            url = self.data.url["syukudai"]
+        except (KeyError, TypeError):
+            await interaction.followup.send("ロキシー先生今宿題がありません。")
+            return
+
+        embed = discord.Embed(title="ロキシー先生の宿題", url=url)
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
