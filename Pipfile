@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-aiohttp = ">=3.9.0"
-openai = "==0.26.0"
+aiohttp = "*"
+openai = "*"
 yt-dlp = "*"
 python-dotenv = "*"
 requests = "*"
-"discord.py" = {extras = ["voice"], version = "==2.4.0"}
+"discord.py" = ">=2.6.4"
 
 [dev-packages]
 
