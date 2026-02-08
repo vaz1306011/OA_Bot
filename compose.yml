@@ -1,11 +1,15 @@
 services:
   oabot:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: oabot:latest
     container_name: oabot
     environment:
-      BOT_TOKEN: ${BOT_TOKEN:?'Error: BOT_TOKEN is not set'}
-      COMMAND_PREFIX: ${COMMAND_PREFIX:->}
+      BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN is not set}"
+      COMMAND_PREFIX: "${COMMAND_PREFIX:->}"
     volumes:
+      - ./data:/app/data
       - /etc/localtime:/etc/localtime:ro
-      - /volume1/docker/OA_Bot/data:/app/data
+      - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
