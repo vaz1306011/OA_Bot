@@ -6,10 +6,9 @@ services:
     image: oabot:latest
     container_name: oabot
     environment:
+      TZ: "${SYSTEM_TZ:-UTC}"
       BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN is not set}"
       COMMAND_PREFIX: "${COMMAND_PREFIX:->}"
     volumes:
       - ./data:/app/data
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     restart: unless-stopped
