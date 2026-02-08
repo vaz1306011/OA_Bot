@@ -17,7 +17,7 @@ jobs:
           key: ${{ secrets.NAS_SSH_KEY }}
           port: 22
           script: |
-            cd /volume1/docker/furocya-tohenkan
+            cd /volume1/docker/OA_Bot
             git fetch --all
             git checkout ${{ github.ref_name }}
             docker compose up -d --build
