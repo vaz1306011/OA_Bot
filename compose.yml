@@ -1,5 +1,8 @@
 services:
   oabot:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: oabot:latest
     container_name: oabot
     environment:
