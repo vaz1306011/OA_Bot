@@ -1,0 +1,23 @@
+name: Deploy Bot to NAS
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH Remote Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: ${{ secrets.NAS_USERNAME }}
+          key: ${{ secrets.NAS_SSH_KEY }}
+          port: 22
+          script: |
+            cd /volume1/docker/furocya-tohenkan
+            git fetch --all
+            git checkout ${{ github.ref_name }}
+            docker compose up -d --build
