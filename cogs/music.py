@@ -123,21 +123,9 @@ class Music(Cog_Extension):
 
         channel = interaction.user.voice.channel
 
-        # 檢查是否已經在語音頻道中，避免重複 connect 導致死鎖
-        guild_vc = interaction.guild.voice_client
-        if guild_vc and guild_vc.is_connected():
-            if guild_vc.channel.id == channel.id:
-                return guild_vc
-            else:
-                # 如果在不同頻道，移動過去
-                await guild_vc.move_to(channel)
-                return guild_vc
-
         logger.debug(f"嘗試加入 {channel.name} 語音頻道...")
 
         try:
-            # 使用 wait_for 防止無限期卡死
-            # self.bot 是你的 commands.Bot 實例
             vc = await asyncio.wait_for(
                 channel.connect(timeout=20.0, reconnect=True), timeout=25.0
             )
