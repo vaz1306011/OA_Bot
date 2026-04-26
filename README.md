@@ -73,17 +73,23 @@ docker compose up --build -d
 
 ---
 
-## 主要功能:
+## 主要功能
+
+### 播放音樂
+
+<img width="700" src=".readme/music-play.gif"/>
+
+---
 
 ### 隨機選擇
 
-<img width="700" src="https://github.com/vaz1306011/OA_Bot/assets/50329983/bcd78df6-ebb2-4c5e-bbfd-b592dedf49fc"/>
+<img width="700" src=".readme/random-choose.gif"/>
 
 ---
 
 ### 清理之後的訊息
 
-<img width="700" src="https://github.com/vaz1306011/OA_Bot/assets/50329983/e7d773cb-3d2a-40e4-a241-5b12d33f5b33"/>
+<img width="700" src=".readme/clean-message.gif"/>
 
 ---
 
