@@ -17,7 +17,41 @@ from core.logger import logger
 class Event(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
-        self.conn_dom = sqlite3.connect("./data/on_message_ignore.db")
+        self.db_path = "./data/on_message_ignore.db"
+        self._initialize_on_message_ignore_db()
+        self.conn_dom = sqlite3.connect(self.db_path)
+
+    def _initialize_on_message_ignore_db(self):
+        """若忽略清單資料庫不存在，建立資料庫與必要資料表。"""
+        if os.path.exists(self.db_path):
+            return
+
+        conn = sqlite3.connect(self.db_path)
+        try:
+            conn.executescript(
+                """
+                CREATE TABLE "channels" (
+                    "id"    INTEGER,
+                    "name"  TEXT,
+                    PRIMARY KEY("id")
+                );
+
+                CREATE TABLE "guilds" (
+                    "id"    INTEGER,
+                    "name"  TEXT,
+                    PRIMARY KEY("id")
+                );
+
+                CREATE TABLE "users" (
+                    "id"    INTEGER,
+                    "name"  TEXT,
+                    PRIMARY KEY("id")
+                );
+                """
+            )
+            conn.commit()
+        finally:
+            conn.close()
 
     @commands.Cog.listener()
     async def on_ready(self):
