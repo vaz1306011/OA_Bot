@@ -17,17 +17,6 @@ class React(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
 
-    @app_commands.command(nsfw=True)
-    async def nhentai(self, interaction: discord.Interaction):
-        """隨機產生6位數網址
-
-        Args:
-            interaction (discord.Interaction): interaction
-        """
-        await interaction.response.defer()
-        random_6digit = random.choice(self.data["nhentai"])
-        await interaction.followup.send(f"https://nhentai.net/g/{random_6digit}")
-
     @app_commands.command()
     async def say(self, interaction: discord.Interaction, message: str):
         """讓機器人說話

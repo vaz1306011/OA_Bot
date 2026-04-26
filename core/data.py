@@ -20,5 +20,4 @@ class DataClass:
         self.guild = _data["guild"]
         self.role = _data["role"]
         self.channel = _data["channel"]
-        self.nhentai = _data["nhentai"]
         self.url = _data["url"]
