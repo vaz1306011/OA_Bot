@@ -229,7 +229,6 @@ class Main(Cog_Extension):
                 embed.add_field(name="/vote", value="投票", inline=True)
                 embed.add_field(name="/roll", value="骰骰子", inline=True)
                 embed.add_field(name="/say", value="讓機器人說話", inline=True)
-                embed.add_field(name="/nhentai", value="隨機產生6位數網址", inline=True)
                 embed.add_field(name="/novel", value="獲取小說雲端網址", inline=True)
 
             case "id":
