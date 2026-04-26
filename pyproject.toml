@@ -5,10 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "discord-py>=2.6.4",
+    "discord-py[voice]>=2.7.1",
     "openai>=2.9.0",
-    "pynacl>=1.6.1",
+    "pynacl<1.6",
     "python-dotenv>=1.2.1",
     "requests>=2.32.5",
-    "yt-dlp>=2026.2.4",
+    "yt-dlp>=2026.3.17",
 ]

@@ -1,3 +1,4 @@
+import asyncio
 import functools
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
@@ -121,11 +122,39 @@ class Music(Cog_Extension):
             return None
 
         channel = interaction.user.voice.channel
-        vc = await channel.connect()
-        # 加入用戶所在的語音頻道
-        self.__get_play_list(interaction.guild_id)
-        await interaction.followup.send(f"已加入 {channel.mention} 頻道")
-        return vc
+
+        # 檢查是否已經在語音頻道中，避免重複 connect 導致死鎖
+        guild_vc = interaction.guild.voice_client
+        if guild_vc and guild_vc.is_connected():
+            if guild_vc.channel.id == channel.id:
+                return guild_vc
+            else:
+                # 如果在不同頻道，移動過去
+                await guild_vc.move_to(channel)
+                return guild_vc
+
+        logger.debug(f"嘗試加入 {channel.name} 語音頻道...")
+
+        try:
+            # 使用 wait_for 防止無限期卡死
+            # self.bot 是你的 commands.Bot 實例
+            vc = await asyncio.wait_for(
+                channel.connect(timeout=20.0, reconnect=True), timeout=25.0
+            )
+            logger.debug("成功加入語音頻道")
+
+            self.__get_play_list(interaction.guild_id)
+            await interaction.followup.send(f"已加入 {channel.mention} 頻道")
+            return vc
+
+        except asyncio.TimeoutError:
+            logger.error("語音連線超時，請檢查網路環境或 Intents 設定。")
+            await interaction.followup.send("連線超時，請稍後再試。")
+            return None
+        except Exception as e:
+            logger.error(f"加入語音頻道發生錯誤: {e}", exc_info=True)
+            await interaction.followup.send(f"無法加入頻道: {e}")
+            return None
 
     def __play_next(self, guild: discord.Guild):
         """播放下一首歌曲
