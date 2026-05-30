@@ -8,11 +8,12 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Modal, Select, TextInput, View
 
-from bot import CogType
-from core.check import is_owner
-from core.classes import Cog_Extension
-from core.logger import logger
-from core.tools import ctx_send
+from OA_Bot.bot import CogType
+from OA_Bot.core.check import is_owner
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
+from OA_Bot.core.paths import DATA_FILE
+from OA_Bot.core.tools import ctx_send
 
 
 class Main(Cog_Extension):
@@ -27,7 +28,7 @@ class Main(Cog_Extension):
         await interaction.response.defer(ephemeral=True)
         cog_name = cog_name.value
         try:
-            await self.bot.load_extension(f"cogs.{cog_name}")
+            await self.bot.load_extension(f"OA_Bot.cogs.{cog_name}")
             await interaction.followup.send(f"已載入 {cog_name} 模塊")
         except Exception as e:
             await interaction.followup.send(f"載入模塊 {cog_name} 失敗，原因為: {e}")
@@ -38,7 +39,7 @@ class Main(Cog_Extension):
         await interaction.response.defer(ephemeral=True)
         cog_name = cog_name.value
         try:
-            await self.bot.unload_extension(f"cogs.{cog_name}")
+            await self.bot.unload_extension(f"OA_Bot.cogs.{cog_name}")
             await interaction.followup.send(f"已卸載 {cog_name} 模塊")
         except Exception as e:
             await interaction.followup.send(f"卸載模塊 {cog_name} 失敗，原因為: {e}")
@@ -52,19 +53,19 @@ class Main(Cog_Extension):
             if cog_name == "*":
                 for cog in CogType:
                     try:
-                        await self.bot.unload_extension(f"cogs.{cog.name}")
-                        await self.bot.load_extension(f"cogs.{cog.name}")
+                        await self.bot.unload_extension(f"OA_Bot.cogs.{cog.name}")
+                        await self.bot.load_extension(f"OA_Bot.cogs.{cog.name}")
                     except:
                         pass
 
                 await interaction.followup.send("已重新載入所有Cog")
             else:
                 try:
-                    await self.bot.unload_extension(f"cogs.{cog_name}")
+                    await self.bot.unload_extension(f"OA_Bot.cogs.{cog_name}")
                 except:
                     pass
                 finally:
-                    await self.bot.load_extension(f"cogs.{cog_name}")
+                    await self.bot.load_extension(f"OA_Bot.cogs.{cog_name}")
 
                 await interaction.followup.send(f"已重新載入 {cog_name} 模塊")
 
@@ -194,11 +195,7 @@ class Main(Cog_Extension):
                 }
                 json.dump(
                     asdict(Cog_Extension.data),
-                    open(
-                        "./data/data.json",
-                        "w",
-                        encoding="utf8",
-                    ),
+                    DATA_FILE.open("w", encoding="utf8"),
                     indent=2,
                     ensure_ascii=False,
                 )

@@ -1,9 +1,9 @@
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from core.classes import Cog_Extension
-from core.logger import logger
-from core.tools import ctx_send_red
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
+from OA_Bot.core.tools import ctx_send_red
 
 
 class Error(Cog_Extension):

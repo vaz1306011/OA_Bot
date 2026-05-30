@@ -1,1 +1,3 @@
 .env
+OA_Bot/data/*.db
+OA_Bot/data/*.json

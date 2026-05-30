@@ -1,6 +1,12 @@
 name: Deploy Bot to NAS
 
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch or tag to deploy"
+        required: false
+        default: "main"
   push:
     tags:
       - "v*"
@@ -9,7 +15,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH Remote Commands
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref_name }}
+
+      - name: Copy Files to NAS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.NAS_HOST }}
+          username: ${{ secrets.NAS_USERNAME }}
+          key: ${{ secrets.NAS_SSH_KEY }}
+          port: 22
+          source: "."
+          target: "/volume1/docker/OA_Bot"
+          overwrite: true
+
+      - name: Deploy on NAS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.NAS_HOST }}
@@ -18,6 +40,4 @@ jobs:
           port: 22
           script: |
             cd /volume1/docker/OA_Bot
-            git fetch --all
-            git checkout ${{ github.ref_name }}
             docker compose up -d --build

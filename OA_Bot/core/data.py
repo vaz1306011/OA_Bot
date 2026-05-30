@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass
-from pathlib import Path
+
+from OA_Bot.core.paths import DATA_FILE
 
 
 @dataclass
@@ -13,11 +14,10 @@ class DataClass:
     url: dict = None
 
     def update(self):
-        file_path = Path("./data/data.json")
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        if not file_path.exists():
-            file_path.write_text(json.dumps({}), encoding="utf8")
-        with open("./data/data.json", "r", encoding="utf8") as f:
+        DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
+        if not DATA_FILE.exists():
+            DATA_FILE.write_text(json.dumps({}), encoding="utf8")
+        with DATA_FILE.open("r", encoding="utf8") as f:
             _data = json.load(f)
         self.presence = _data.get("presence", {})
         self.user_id = _data.get("user_id", {})

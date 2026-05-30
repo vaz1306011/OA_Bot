@@ -12,4 +12,4 @@ RUN uv sync --frozen
 
 COPY . .
 
-CMD ["uv", "run", "bot.py"]
+CMD ["uv", "run", "python", "-m", "OA_Bot.bot"]
