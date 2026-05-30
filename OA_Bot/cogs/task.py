@@ -1,7 +1,7 @@
 from discord.ext import commands
 
-from core.classes import Cog_Extension
-from core.logger import logger
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
 
 
 class Task(Cog_Extension):

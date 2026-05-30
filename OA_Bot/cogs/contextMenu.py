@@ -6,8 +6,8 @@ from discord.app_commands.errors import AppCommandError
 from discord.ext import commands
 from discord.ui import Modal, TextInput
 
-from core.classes import Cog_Extension
-from core.logger import logger
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
 
 
 class ContextMenu(Cog_Extension):

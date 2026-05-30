@@ -9,20 +9,21 @@ from discord import app_commands
 from discord.app_commands import MissingPermissions
 from discord.ext import commands
 
-from core.check import is_exception_content
-from core.classes import Cog_Extension
-from core.logger import logger
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
+from OA_Bot.core.paths import ON_MESSAGE_IGNORE_DB
 
 
 class Event(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
-        self.db_path = "./data/on_message_ignore.db"
+        self.db_path = ON_MESSAGE_IGNORE_DB
         self._initialize_on_message_ignore_db()
         self.conn_dom = sqlite3.connect(self.db_path)
 
     def _initialize_on_message_ignore_db(self):
         """若忽略清單資料庫不存在，建立資料庫與必要資料表。"""
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
         if os.path.exists(self.db_path):
             return
 
@@ -76,7 +77,7 @@ class Event(Cog_Extension):
     async def on_message(self, message: discord.Message):
         content = re.sub(r"https?://\S{2,}\b", "", message.content)
 
-        if is_exception_content(message):
+        if self.is_exception_content(message):
             return
 
         omi_status = self.check_omi(message)

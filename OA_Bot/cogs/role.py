@@ -2,9 +2,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from core.check import is_owner
-from core.classes import Cog_Extension
-from core.logger import logger
+from OA_Bot.core.check import is_owner
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
 
 
 class Role(Cog_Extension):

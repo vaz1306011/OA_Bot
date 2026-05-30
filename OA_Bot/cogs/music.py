@@ -13,8 +13,8 @@ from discord.ext.commands.bot import Bot
 from discord.ui import Modal, Select, TextInput, View
 from discord.voice_client import VoiceClient
 
-from core.classes import Cog_Extension
-from core.logger import logger
+from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.logger import logger
 
 # YDL_OPTIONS = {"format": "bestaudio", "noplaylist": "True"}
 YDL_OPTIONS = {

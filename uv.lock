@@ -1021,7 +1021,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "discord-py", extras = ["voice"], specifier = ">=2.6.4" },
+    { name = "discord-py", extras = ["voice"], specifier = ">=2.7.1" },
     { name = "openai", specifier = ">=2.9.0" },
     { name = "pynacl", specifier = "<1.6" },
     { name = "python-dotenv", specifier = ">=1.2.1" },

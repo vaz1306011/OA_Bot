@@ -49,13 +49,13 @@ cp .env.example .env
 
 ### 3. 設定管理者 ID
 
-將 `data/data.json.example` 複製或重新命名為 `data/data.json`。
+將 `OA_Bot/data/data.json.example` 複製或重新命名為 `OA_Bot/data/data.json`。
 
 ```bash
-cp data/data.json.example data/data.json
+cp OA_Bot/data/data.json.example OA_Bot/data/data.json
 ```
 
-接著打開 `data/data.json`，將 `owner_ids` 欄位填入自己的 Discord 使用者 ID。
+接著打開 `OA_Bot/data/data.json`，將 `owner_ids` 欄位填入自己的 Discord 使用者 ID。
 
 ### 4. 啟動 Bot
 

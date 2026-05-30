@@ -1,8 +1,8 @@
 .DS_Store
 .vscode/
-cogs/test.py
-data/*.db
-data/*.json
+OA_Bot/cogs/test.py
+OA_Bot/data/*.db
+OA_Bot/data/*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

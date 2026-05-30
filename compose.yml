@@ -10,5 +10,5 @@ services:
       BOT_TOKEN: "${BOT_TOKEN:?BOT_TOKEN is not set}"
       COMMAND_PREFIX: "${COMMAND_PREFIX:->}"
     volumes:
-      - ./data:/app/data
+      - ./OA_Bot/data:/app/OA_Bot/data
     restart: unless-stopped

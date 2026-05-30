@@ -51,13 +51,13 @@ cp .env.example .env
 
 ### 3. 管理者 ID の設定
 
-`data/data.json.example` を `data/data.json` にコピーまたはリネームします。
+`OA_Bot/data/data.json.example` を `OA_Bot/data/data.json` にコピーまたはリネームします。
 
 ```bash
-cp data/data.json.example data/data.json
+cp OA_Bot/data/data.json.example OA_Bot/data/data.json
 ```
 
-その後、`data/data.json` の `owner_ids` に自分の Discord ユーザー ID を設定します。
+その後、`OA_Bot/data/data.json` の `owner_ids` に自分の Discord ユーザー ID を設定します。
 
 ### 4. Bot の起動
 
