@@ -27,7 +27,7 @@ jobs:
           username: ${{ secrets.NAS_USERNAME }}
           key: ${{ secrets.NAS_SSH_KEY }}
           port: 22
-          source: "."
+          source: "OA_Bot/, Dockerfile, compose.yml, .dockerignore, pyproject.toml, uv.lock"
           target: "/volume1/docker/OA_Bot"
           overwrite: true
 
