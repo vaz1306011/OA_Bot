@@ -33,7 +33,12 @@ class ContextMenu(Cog_Extension):
             interaction (discord.Interaction): interaction
         """
         await interaction.response.defer(ephemeral=True)
-        deleted = await interaction.channel.purge(
+        channel = message.channel
+        if not isinstance(channel, discord.TextChannel):
+            await interaction.followup.send("此功能只能在伺服器文字頻道中使用")
+            return
+
+        deleted = await channel.purge(
             limit=None, check=lambda msg: msg.id >= message.id
         )
         await interaction.followup.send(f"已刪除{len(deleted)}則訊息")
@@ -53,7 +58,7 @@ class ContextMenu(Cog_Extension):
         """
 
         class QuestionModal(Modal, title="選出幾個"):
-            answer = TextInput(label="數量", placeholder="1", max_length=2, default=1)
+            answer = TextInput(label="數量", placeholder="1", max_length=2, default="1")
 
             async def on_submit(self, interaction: discord.Interaction) -> None:
                 await interaction.response.defer()
@@ -68,17 +73,35 @@ class ContextMenu(Cog_Extension):
         await interaction.response.send_modal(modal)
         await modal.wait()
 
+        channel = message.channel
+        if not isinstance(channel, discord.TextChannel):
+            await interaction.followup.send(
+                "此功能只能在伺服器文字頻道中使用", ephemeral=True
+            )
+            return
+
+        try:
+            count = int(modal.answer.value)
+        except ValueError:
+            await interaction.followup.send("請輸入有效的數量", ephemeral=True)
+            return
+
+        if count < 1:
+            await interaction.followup.send("數量必須大於 0", ephemeral=True)
+            return
+
         options = [message.content]
-        async for msg in interaction.channel.history(after=message):
+        async for msg in channel.history(after=message):
             options.append(msg.content)
 
-        if len(options) < int(modal.answer.value):
+        if len(options) < count:
             await interaction.followup.send("訊息數量不足", ephemeral=True)
+            return
 
         sources_list = "、".join(options)
-        selected_items = "、".join(random.sample(options, k=int(modal.answer.value)))
+        selected_items = "、".join(random.sample(options, k=count))
         resault = f"從 {sources_list}\n選出 {selected_items}"
-        await interaction.channel.purge(limit=len(options))
+        await channel.purge(limit=len(options))
         await interaction.followup.send(resault)
 
 
