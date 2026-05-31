@@ -51,7 +51,7 @@ class PlayList:
     play_list: deque[MusicData] = deque()
 
     def get_next(self) -> MusicData | None:
-        self.now_playing = self.play_list.popleft()
+        self.now_playing = self.play_list.popleft() if self.play_list else None
         return self.now_playing
 
     def append(self, music: MusicData) -> "PlayList":
@@ -97,7 +97,7 @@ class Music(Cog_Extension):
     def __init__(self, bot: Bot):
         super().__init__(bot)
         self.ytdl = yt_dlp.YoutubeDL(YDL_OPTIONS)
-        self.play_lists: Dict[int, PlayList] | None = dict()  # 伺服器id:播放清單
+        self.play_lists: Dict[int, PlayList] = dict()  # {伺服器id:播放清單}
         self.thread_pool = ThreadPoolExecutor(max_workers=2)
 
     def __get_play_list(self, guild_id: int) -> PlayList:
@@ -144,7 +144,7 @@ class Music(Cog_Extension):
             await interaction.followup.send(f"無法加入頻道: {e}")
             return None
 
-    def __play_next(self, guild: discord.Guild):
+    async def __play_next(self, guild: discord.Guild):
         """播放下一首歌曲
 
         Args:
@@ -152,6 +152,7 @@ class Music(Cog_Extension):
         """
         music = self.__get_play_list(guild.id).get_next()
         if music is None:
+            await guild.voice_client.disconnect()
             return
 
         vc: VoiceClient = guild.voice_client
@@ -160,7 +161,9 @@ class Music(Cog_Extension):
                 music.url,
                 **FFMPEG_OPTIONS,
             ),
-            after=lambda e: self.__play_next(guild),
+            after=lambda e: asyncio.run_coroutine_threadsafe(
+                self.__play_next(guild), self.bot.loop
+            ),
         )
 
     async def __get_music(self, url: str, order: discord.Member = None) -> MusicData:
@@ -267,7 +270,7 @@ class Music(Cog_Extension):
 
         await self.__queue(interaction, music, index)
         if not vc.is_playing():
-            self.__play_next(interaction.guild)
+            await self.__play_next(interaction.guild)
 
     @music_group.command()
     async def stop(self, interaction: discord.Interaction):
