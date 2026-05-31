@@ -13,15 +13,24 @@ from OA_Bot.core.logger import logger
 class ContextMenu(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
-        clear_after_error = discord.app_commands.ContextMenu(
+        self.clear_after_menu = discord.app_commands.ContextMenu(
             name="清理之後的訊息", callback=self.clear_after
         )
-        clear_after_error.error(self.clear_after_error)
-        self.bot.tree.add_command(clear_after_error)
+        self.clear_after_menu.error(self.clear_after_error)
 
-        choose = discord.app_commands.ContextMenu(name="隨機選擇", callback=self.choose)
-        # choose.error(self.choose_error)
-        self.bot.tree.add_command(choose)
+        self.choose_menu = discord.app_commands.ContextMenu(
+            name="隨機選擇", callback=self.choose
+        )
+
+    async def cog_load(self) -> None:
+        self.bot.tree.add_command(self.clear_after_menu)
+        self.bot.tree.add_command(self.choose_menu)
+
+    async def cog_unload(self) -> None:
+        self.bot.tree.remove_command(
+            self.clear_after_menu.name, type=self.clear_after_menu.type
+        )
+        self.bot.tree.remove_command(self.choose_menu.name, type=self.choose_menu.type)
 
     @app_commands.checks.has_permissions(manage_messages=True)
     async def clear_after(
