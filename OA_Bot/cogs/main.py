@@ -193,13 +193,7 @@ class Main(Cog_Extension):
                     "name": name,
                     "url": url,
                 }
-                json.dump(
-                    asdict(Cog_Extension.data),
-                    DATA_FILE.open("w", encoding="utf8"),
-                    indent=2,
-                    ensure_ascii=False,
-                )
-                logger.info("已儲存機器人狀態到data.json")
+                Cog_Extension.data.save()
 
         view = StatusSelectView(self.bot)
         await interaction.response.send_message(view=view, ephemeral=True)
