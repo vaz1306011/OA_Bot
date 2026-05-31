@@ -143,24 +143,24 @@ class Music(Cog_Extension):
         """
         guild = interaction.guild
         member = self.__get_member(interaction)
-        channel = self.__get_member_voice_channel(member)
-        if guild is None or channel is None:
+        voice_channel = self.__get_member_voice_channel(member)
+        if guild is None or voice_channel is None:
             await interaction.followup.send("您不在任何語音頻道中")
             return None
 
-        logger.debug(f"嘗試加入 {channel.name} 語音頻道...")
+        logger.debug(f"嘗試加入 {voice_channel.name} 語音頻道...")
 
         try:
             vc = cast(
                 VoiceClient,
                 await asyncio.wait_for(
-                    channel.connect(timeout=20.0, reconnect=True), timeout=25.0
+                    voice_channel.connect(timeout=20.0, reconnect=True), timeout=25.0
                 ),
             )
             logger.debug("成功加入語音頻道")
 
             self.__get_play_list(guild.id)
-            await interaction.followup.send(f"已加入 {channel.mention} 頻道")
+            await interaction.followup.send(f"已加入 {voice_channel.mention} 頻道")
             return vc
 
         except asyncio.TimeoutError:
@@ -310,8 +310,8 @@ class Music(Cog_Extension):
 
         guild = interaction.guild
         member = self.__get_member(interaction)
-        member_channel = self.__get_member_voice_channel(member)
-        if guild is None or member is None or member_channel is None:
+        member_voice_channel = self.__get_member_voice_channel(member)
+        if guild is None or member is None or member_voice_channel is None:
             await interaction.followup.send("你不在任何語音頻道中", ephemeral=True)
             return
 
@@ -323,13 +323,13 @@ class Music(Cog_Extension):
             await interaction.followup.send("無法加入語音頻道")
             return
 
-        channel = vc.channel
-        if channel is None:
+        bot_voice_channel = vc.channel
+        if bot_voice_channel is None:
             await interaction.followup.send("無法取得機器人所在的語音頻道")
             return
 
-        if member_channel.id != channel.id:
-            await interaction.followup.send(f"滾去 {channel.mention} 聽歌")
+        if member_voice_channel.id != bot_voice_channel.id:
+            await interaction.followup.send(f"滾去 {bot_voice_channel.mention} 聽歌")
             return
 
         await self.__queue(interaction, guild.id, music, index, member)
