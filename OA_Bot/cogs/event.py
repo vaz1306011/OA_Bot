@@ -2,16 +2,19 @@ import os
 import random
 import re
 import sqlite3
+from typing import Literal
 
 import discord
 import openai
 from discord import app_commands
-from discord.app_commands import MissingPermissions
+from discord.app_commands import AppCommandError, MissingPermissions
 from discord.ext import commands
 
 from OA_Bot.core.classes import Cog_Extension
 from OA_Bot.core.logger import logger
 from OA_Bot.core.paths import ON_MESSAGE_IGNORE_DB
+
+OmiTable = Literal["channels", "guilds", "users"]
 
 
 class Event(Cog_Extension):
@@ -29,8 +32,7 @@ class Event(Cog_Extension):
 
         conn = sqlite3.connect(self.db_path)
         try:
-            conn.executescript(
-                """
+            conn.executescript("""
                 CREATE TABLE "channels" (
                     "id"    INTEGER,
                     "name"  TEXT,
@@ -48,26 +50,33 @@ class Event(Cog_Extension):
                     "name"  TEXT,
                     PRIMARY KEY("id")
                 );
-                """
-            )
+                """)
             conn.commit()
         finally:
             conn.close()
 
     @commands.Cog.listener()
     async def on_ready(self):
-        bot_name = self.bot.user.name
+        bot_user = self.bot.user
+        if bot_user is None:
+            logger.error("無法取得機器人使用者資料")
+            return
+
+        bot_name = bot_user.name
         logger.info(f"{bot_name} 上線")
 
+        presence = self.data.presence
+        if presence is None:
+            logger.error("缺少機器人狀態設定")
+            return
+
         activity = discord.Activity(
-            type=self.data.presence["type"],
-            name=self.data.presence["name"],
-            url=self.data.presence["url"],
+            type=presence["type"],
+            name=presence["name"],
+            url=presence["url"],
         )
 
-        await self.bot.change_presence(
-            status=self.data.presence["status"], activity=activity
-        )
+        await self.bot.change_presence(status=presence["status"], activity=activity)
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 
@@ -115,8 +124,8 @@ class Event(Cog_Extension):
         Returns:
             bool: 是否在忽略名單
         """
+        cursor = self.conn_dom.cursor()
         try:
-            cursor = self.conn_dom.cursor()
             disabled = any(
                 (
                     message.guild
@@ -139,36 +148,36 @@ class Event(Cog_Extension):
 
         return disabled
 
-    def omi_insert(self, table: str, id: int, name: str):
+    def omi_insert(self, table: OmiTable, record_id: int, name: str):
         """新增忽略
 
         Args:
             table (str): 資料表
-            id (int): id
+            record_id (int): id
             name (str): 名稱
         """
+        cursor = self.conn_dom.cursor()
         try:
-            cursor = self.conn_dom.cursor()
             cursor.execute(
                 f"INSERT OR IGNORE INTO {table} VALUES (?, ?)",
-                (id, name),
+                (record_id, name),
             )
             self.conn_dom.commit()
         finally:
             cursor.close()
 
-    def omi_delete(self, table: str, id: int):
+    def omi_delete(self, table: OmiTable, record_id: int):
         """刪除忽略
 
         Args:
             table (str): 資料表
-            id (int): id
+            record_id (int): id
         """
+        cursor = self.conn_dom.cursor()
         try:
-            cursor = self.conn_dom.cursor()
             cursor.execute(
                 f"DELETE FROM {table} WHERE id = ?",
-                (id,),
+                (record_id,),
             )
             self.conn_dom.commit()
         finally:
@@ -183,14 +192,21 @@ class Event(Cog_Extension):
             interaction (discord.Interaction): interaction
             status (bool): 開關
         """
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message(
+                "此指令只能在伺服器中使用", ephemeral=True
+            )
+            return
+
         if status:
             self.omi_insert(
                 "guilds",
-                interaction.guild_id,
-                interaction.guild.name,
+                guild.id,
+                guild.name,
             )
         else:
-            self.omi_delete("guilds", interaction.guild_id)
+            self.omi_delete("guilds", guild.id)
 
         await interaction.response.send_message(
             f"已**{'忽略' if status else '啟用'}**此伺服器的關鍵字檢測", ephemeral=True
@@ -205,14 +221,20 @@ class Event(Cog_Extension):
             interaction (discord.Interaction): interaction
             status (bool): 開關
         """
+        channel = interaction.channel
+        channel_id = interaction.channel_id
+        if channel is None or channel_id is None:
+            await interaction.response.send_message("無法取得目前頻道", ephemeral=True)
+            return
+
         if status:
             self.omi_insert(
                 "channels",
-                interaction.channel_id,
-                interaction.channel.name,
+                channel_id,
+                str(channel),
             )
         else:
-            self.omi_delete("channels", interaction.channel_id)
+            self.omi_delete("channels", channel_id)
 
         await interaction.response.send_message(
             f"已**{'忽略' if status else '啟用'}**此頻道的關鍵字檢測", ephemeral=True
@@ -220,7 +242,9 @@ class Event(Cog_Extension):
 
     @guild.error
     @channel.error
-    async def guild_and_channel_error(self, interaction: discord.Interaction, error):
+    async def guild_and_channel_error(
+        self, interaction: discord.Interaction, error: AppCommandError
+    ):
         if isinstance(error, MissingPermissions):
             await interaction.response.send_message("你沒有權限這麼做", ephemeral=True)
 
@@ -252,8 +276,8 @@ class Event(Cog_Extension):
         Args:
             interaction (discord.Interaction): interaction
         """
+        cursor = self.conn_dom.cursor()
         try:
-            cursor = self.conn_dom.cursor()
             guild_status = not not cursor.execute(
                 "SELECT 1 FROM guilds WHERE id = ?", (interaction.guild_id,)
             ).fetchone()
