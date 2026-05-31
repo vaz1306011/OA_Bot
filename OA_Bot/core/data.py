@@ -1,27 +1,30 @@
 import json
-from dataclasses import dataclass
 
+from pydantic import BaseModel
+
+from OA_Bot.core.logger import logger
 from OA_Bot.core.paths import DATA_FILE
 
 
-@dataclass
-class DataClass:
-    presence: dict = None
-    user_id: dict = None
-    guild: dict = None
-    role: dict = None
-    channel: dict = None
-    url: dict = None
+class DataClass(BaseModel):
+    presence: dict = {}
+    user_id: dict = {}
+    guild: dict = {}
+    role: dict = {}
+    channel: dict = {}
+    url: dict = {}
 
-    def update(self):
+    @classmethod
+    def load(cls) -> "DataClass":
+        try:
+            content = DATA_FILE.read_text(encoding="utf8")
+            return cls.model_validate_json(content)
+        except (FileNotFoundError, json.JSONDecodeError, ValueError):
+            logger.error(f"無法解析{DATA_FILE}，請確保它是有效的 JSON 格式")
+            return cls()
+
+    def save(self):
         DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-        if not DATA_FILE.exists():
-            DATA_FILE.write_text(json.dumps({}), encoding="utf8")
-        with DATA_FILE.open("r", encoding="utf8") as f:
-            _data = json.load(f)
-        self.presence = _data.get("presence", {})
-        self.user_id = _data.get("user_id", {})
-        self.guild = _data.get("guild", {})
-        self.role = _data.get("role", {})
-        self.channel = _data.get("channel", {})
-        self.url = _data.get("url", {})
+        with DATA_FILE.open("w", encoding="utf8") as f:
+            json.dump(self.model_dump(), f, ensure_ascii=False, indent=4)
+        logger.info(f"已儲存機器人狀態到{DATA_FILE}")
