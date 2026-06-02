@@ -1,24 +1,25 @@
 import asyncio
-import enum
 import glob
 import os
 from pathlib import Path
+from typing import Optional, cast
 
 import discord
+from discord import app_commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 
 load_dotenv()
-token = os.getenv("BOT_TOKEN")
-command_prefix = os.getenv("COMMAND_PREFIX")
-__cogs = [
+token: str = cast(str, os.getenv("BOT_TOKEN"))
+command_prefix = cast(str, os.getenv("COMMAND_PREFIX"))
+cog_names = [
     cog[:-3]
     for cog in glob.glob("*.py", root_dir=PACKAGE_DIR / "cogs")
     if not cog.startswith("__")
 ]  # ["Cog1", "Cog2", "Cog3", ...]
-CogType = enum.Enum("Cog", {cog: cog for cog in (["*"] + __cogs)})
+COG_CHOICES = [app_commands.Choice(name=cog, value=cog) for cog in ["*", *cog_names]]
 
 
 bot = Bot(
@@ -29,20 +30,16 @@ bot = Bot(
 )
 
 
-async def setup(excludes: list[str] = None):
-    for cog in CogType:
-        if excludes and cog.name in excludes:
+async def setup(excludes: Optional[list[str]] = None):
+    for cog in COG_CHOICES:
+        if excludes and cog.value in excludes:
             continue
-        if cog.name == "*":
+        if cog.value == "*":
             continue
-        await bot.load_extension(f"OA_Bot.cogs.{cog.name}")
+        await bot.load_extension(f"OA_Bot.cogs.{cog.value}")
 
     await bot.start(token)
 
 
 if __name__ == "__main__":
-    # try:
     asyncio.run(setup(["ai"]))
-    # except Exception as e:
-    #     print(e)
-    #     os.system("kill 1")
