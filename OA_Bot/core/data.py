@@ -1,5 +1,3 @@
-import json
-
 from pydantic import BaseModel
 
 from OA_Bot.core.logger import logger
@@ -19,12 +17,11 @@ class DataClass(BaseModel):
         try:
             content = DATA_FILE.read_text(encoding="utf8")
             return cls.model_validate_json(content)
-        except (FileNotFoundError, json.JSONDecodeError, ValueError):
+        except (FileNotFoundError, ValueError):
             logger.error(f"無法解析{DATA_FILE}，請確保它是有效的 JSON 格式")
             return cls()
 
     def save(self):
         DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with DATA_FILE.open("w", encoding="utf8") as f:
-            json.dump(self.model_dump(), f, ensure_ascii=False, indent=4)
+        DATA_FILE.write_text(self.model_dump_json(indent=4), encoding="utf8")
         logger.info(f"已儲存機器人狀態到{DATA_FILE}")

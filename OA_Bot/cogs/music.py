@@ -417,7 +417,7 @@ class Music(Cog_Extension):
         for index, music in enumerate(play_list.play_list):
             embed.add_field(
                 name="",
-                value=f"`{index+2}.` [**{music.name}**]({music.webpage_url}) - {music.order.mention}",
+                value=f"`{index + 2}.` [**{music.name}**]({music.webpage_url}) - {music.order.mention}",
                 inline=False,
             )
 

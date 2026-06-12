@@ -139,10 +139,12 @@ class React(Cog_Extension):
                     logger.info(
                         re.sub(
                             r"\d+",
-                            lambda matched: interaction.guild.get_member(
-                                int(matched.group())
-                            ).nick
-                            or interaction.guild.get_member(int(matched.group())).name,
+                            lambda matched: (
+                                interaction.guild.get_member(int(matched.group())).nick
+                                or interaction.guild.get_member(
+                                    int(matched.group())
+                                ).name
+                            ),
                             str(self.clicked_people),
                         )
                     )
