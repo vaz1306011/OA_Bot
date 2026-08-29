@@ -2,7 +2,7 @@ import asyncio
 import functools
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict
 
 import discord
@@ -29,12 +29,11 @@ YDL_OPTIONS = {
     "default_search": "auto",
     "source_address": "0.0.0.0",
     "usenetrc": True,
+    "extractor_args": {"youtube": {"player_client": ["android", "web"]}},
 }
 
-FFMPEG_OPTIONS = {
-    "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-    "options": "-vn",
-}
+FFMPEG_BEFORE_OPTIONS = "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5"
+FFMPEG_OPTIONS = "-vn"
 
 
 @dataclass
@@ -43,12 +42,13 @@ class MusicData:
     url: str
     webpage_url: str
     order: discord.Member | None = None
+    http_headers: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
 class PlayList:
     now_playing: MusicData | None = None
-    play_list: deque[MusicData] = deque()
+    play_list: deque[MusicData] = field(default_factory=deque)
 
     def get_next(self) -> MusicData | None:
         self.now_playing = self.play_list.popleft()
@@ -155,10 +155,19 @@ class Music(Cog_Extension):
             return
 
         vc: VoiceClient = guild.voice_client
+
+        before_options = FFMPEG_BEFORE_OPTIONS
+        if music.http_headers:
+            header_lines = "".join(
+                f"{key}: {value}\r\n" for key, value in music.http_headers.items()
+            )
+            before_options = f'-headers "{header_lines}" {before_options}'
+
         vc.play(
             discord.FFmpegPCMAudio(
                 music.url,
-                **FFMPEG_OPTIONS,
+                before_options=before_options,
+                options=FFMPEG_OPTIONS,
             ),
             after=lambda e: self.__play_next(guild),
         )
@@ -185,7 +194,13 @@ class Music(Cog_Extension):
         if "entries" in info:
             info = info["entries"][0]
 
-        return MusicData(info["title"], info["url"], info["webpage_url"], order)
+        return MusicData(
+            info["title"],
+            info["url"],
+            info["webpage_url"],
+            order,
+            info.get("http_headers", {}),
+        )
 
     async def __queue(self, interaction: discord.Interaction, url: str, index: int):
         """加入音樂到播放清單中
