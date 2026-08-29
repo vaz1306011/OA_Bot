@@ -48,7 +48,7 @@ class MusicData:
 @dataclass
 class PlayList:
     now_playing: MusicData | None = None
-    play_list: deque[MusicData] = deque()
+    play_list: deque[MusicData] = field(default_factory=deque)
 
     def get_next(self) -> MusicData | None:
         self.now_playing = self.play_list.popleft()
