@@ -9,6 +9,8 @@ from discord import app_commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
+from OA_Bot.core.tree import Tree
+
 PACKAGE_DIR = Path(__file__).resolve().parent
 
 load_dotenv()
@@ -27,6 +29,7 @@ bot = Bot(
     help_command=None,
     intents=discord.Intents.all(),
     description="老屁股機器人",
+    tree_cls=Tree,
 )
 
 
