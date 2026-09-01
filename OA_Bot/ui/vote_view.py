@@ -3,7 +3,9 @@ from functools import partial
 from typing import Optional
 
 import discord
-from discord.ui import Button, Modal, TextInput, View
+from discord.ui import Button, View
+
+from OA_Bot.ui.simple_input_modal import SimpleInputModal
 
 
 class VoteView(View):
@@ -145,13 +147,7 @@ class VoteView(View):
             await interaction.followup.send("只有作者可以新增選項", ephemeral=True)
             return
 
-        class QuestionModal(Modal, title="新增選項"):
-            answer = TextInput(label="選項", placeholder="選項", max_length=80)
-
-            async def on_submit(self, interaction: discord.Interaction) -> None:
-                await interaction.response.defer()
-
-        modal = QuestionModal()
+        modal = SimpleInputModal("新增選項", "選項", placeholder="選項", max_length=80)
         await interaction.response.send_modal(modal)
         await modal.wait()
         self._add_option(modal.answer.value)
@@ -168,13 +164,7 @@ class VoteView(View):
             await interaction.followup.send("只有作者可以刪除選項", ephemeral=True)
             return
 
-        class QuestionModal(Modal, title="刪除選項"):
-            answer = TextInput(label="index", placeholder="index", max_length=2)
-
-            async def on_submit(self, interaction: discord.Interaction) -> None:
-                await interaction.response.defer()
-
-        modal = QuestionModal()
+        modal = SimpleInputModal("刪除選項", "index", placeholder="index", max_length=2)
         await interaction.response.send_modal(modal)
         await modal.wait()
         try:
