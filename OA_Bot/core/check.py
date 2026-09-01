@@ -12,7 +12,10 @@ async def is_owner(msg: Context | discord.Interaction):
         return msg.author.id in Cog_Extension.data.user_id.get("owner_ids", [])
 
     if isinstance(msg, discord.Interaction):
-        return msg.user.id in Cog_Extension.data.user_id.get("owner_ids", [])
+        if msg.user.id in Cog_Extension.data.user_id.get("owner_ids", []):
+            return True
+        await msg.response.send_message("你沒有管理員權限", ephemeral=True)
+        return False
 
 
 def is_user(name: str):
