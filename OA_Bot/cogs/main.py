@@ -8,6 +8,7 @@ from discord.ext.commands import Context
 from OA_Bot.bot import COG_CHOICES
 from OA_Bot.core.check import is_owner
 from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.consts import TEST_GUILDS, test_only
 from OA_Bot.core.logger import logger
 from OA_Bot.core.tools import ctx_send
 from OA_Bot.ui.status_select_view import StatusSelectView
@@ -17,9 +18,13 @@ class Main(Cog_Extension):
     @commands.command()
     async def fsync(self, ctx: Context):
         synced = await self.bot.tree.sync()
-        await ctx_send(ctx, f"已同步{len(synced)}條指令")
+        test_synced = 0
+        for guild in TEST_GUILDS:
+            test_synced += len(await self.bot.tree.sync(guild=guild))
+        await ctx_send(ctx, f"已同步{len(synced)}條全域指令，{test_synced}條測試指令")
 
     @app_commands.command(description="載入模塊")
+    @test_only
     @app_commands.check(is_owner)
     @app_commands.choices(cog_name=COG_CHOICES)
     async def load(
@@ -36,6 +41,7 @@ class Main(Cog_Extension):
             await interaction.followup.send(f"載入模塊 {cog_value} 失敗，原因為: {e}")
 
     @app_commands.command(description="卸載模塊")
+    @test_only
     @app_commands.check(is_owner)
     @app_commands.choices(cog_name=COG_CHOICES)
     async def unload(
@@ -52,6 +58,7 @@ class Main(Cog_Extension):
             await interaction.followup.send(f"卸載模塊 {cog_value} 失敗，原因為: {e}")
 
     @app_commands.command(description="重新載入模塊")
+    @test_only
     @app_commands.check(is_owner)
     @app_commands.choices(cog_name=COG_CHOICES)
     async def reload(
@@ -92,13 +99,18 @@ class Main(Cog_Extension):
             )
 
     @app_commands.command(description="同步指令")
+    @test_only
     @app_commands.check(is_owner)
     async def sync(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         synced = await self.bot.tree.sync()
-        await interaction.followup.send(f"已同步{len(synced)}條指令")
+        test_synced = 0
+        for guild in TEST_GUILDS:
+            test_synced += len(await self.bot.tree.sync(guild=guild))
+        await interaction.followup.send(f"已同步{len(synced)}條全域指令，{test_synced}條測試指令")
 
     @app_commands.command(description="設置機器人狀態")
+    @test_only
     @app_commands.check(is_owner)
     async def set_status(self, interaction: discord.Interaction):
         view = StatusSelectView(self.bot, self.data)
