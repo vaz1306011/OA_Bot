@@ -1,6 +1,4 @@
-import json
-from dataclasses import asdict
-from typing import Literal
+from typing import Literal, Optional
 
 import discord
 from discord import SelectOption, app_commands
@@ -8,11 +6,11 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ui import Modal, Select, TextInput, View
 
-from OA_Bot.bot import CogType
+from OA_Bot.bot import COG_CHOICES
 from OA_Bot.core.check import is_owner
 from OA_Bot.core.classes import Cog_Extension
+from OA_Bot.core.data import DataClass
 from OA_Bot.core.logger import logger
-from OA_Bot.core.paths import DATA_FILE
 from OA_Bot.core.tools import ctx_send
 
 
@@ -24,57 +22,74 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="載入模塊")
     @app_commands.check(is_owner)
-    async def load(self, interaction: discord.Interaction, cog_name: CogType):
+    @app_commands.choices(cog_name=COG_CHOICES)
+    async def load(
+        self,
+        interaction: discord.Interaction,
+        cog_name: app_commands.Choice[str],
+    ):
         await interaction.response.defer(ephemeral=True)
-        cog_name = cog_name.value
+        cog_value = cog_name.value
         try:
-            await self.bot.load_extension(f"OA_Bot.cogs.{cog_name}")
-            await interaction.followup.send(f"已載入 {cog_name} 模塊")
+            await self.bot.load_extension(f"OA_Bot.cogs.{cog_value}")
+            await interaction.followup.send(f"已載入 {cog_value} 模塊")
         except Exception as e:
-            await interaction.followup.send(f"載入模塊 {cog_name} 失敗，原因為: {e}")
+            await interaction.followup.send(f"載入模塊 {cog_value} 失敗，原因為: {e}")
 
     @app_commands.command(description="卸載模塊")
     @app_commands.check(is_owner)
-    async def unload(self, interaction: discord.Interaction, cog_name: CogType):
+    @app_commands.choices(cog_name=COG_CHOICES)
+    async def unload(
+        self,
+        interaction: discord.Interaction,
+        cog_name: app_commands.Choice[str],
+    ):
         await interaction.response.defer(ephemeral=True)
-        cog_name = cog_name.value
+        cog_value = cog_name.value
         try:
-            await self.bot.unload_extension(f"OA_Bot.cogs.{cog_name}")
-            await interaction.followup.send(f"已卸載 {cog_name} 模塊")
+            await self.bot.unload_extension(f"OA_Bot.cogs.{cog_value}")
+            await interaction.followup.send(f"已卸載 {cog_value} 模塊")
         except Exception as e:
-            await interaction.followup.send(f"卸載模塊 {cog_name} 失敗，原因為: {e}")
+            await interaction.followup.send(f"卸載模塊 {cog_value} 失敗，原因為: {e}")
 
     @app_commands.command(description="重新載入模塊")
     @app_commands.check(is_owner)
-    async def reload(self, interaction: discord.Interaction, cog_name: CogType):
+    @app_commands.choices(cog_name=COG_CHOICES)
+    async def reload(
+        self,
+        interaction: discord.Interaction,
+        cog_name: app_commands.Choice[str],
+    ):
         await interaction.response.defer(ephemeral=True)
-        cog_name = cog_name.value
+        cog_value = cog_name.value
         try:
-            if cog_name == "*":
-                for cog in CogType:
+            if cog_value == "*":
+                for cog in COG_CHOICES:
+                    if cog.value == "*":
+                        continue
                     try:
-                        await self.bot.unload_extension(f"OA_Bot.cogs.{cog.name}")
-                        await self.bot.load_extension(f"OA_Bot.cogs.{cog.name}")
+                        await self.bot.unload_extension(f"OA_Bot.cogs.{cog.value}")
+                        await self.bot.load_extension(f"OA_Bot.cogs.{cog.value}")
                     except:
                         pass
 
                 await interaction.followup.send("已重新載入所有Cog")
             else:
                 try:
-                    await self.bot.unload_extension(f"OA_Bot.cogs.{cog_name}")
+                    await self.bot.unload_extension(f"OA_Bot.cogs.{cog_value}")
                 except:
                     pass
                 finally:
-                    await self.bot.load_extension(f"OA_Bot.cogs.{cog_name}")
+                    await self.bot.load_extension(f"OA_Bot.cogs.{cog_value}")
 
-                await interaction.followup.send(f"已重新載入 {cog_name} 模塊")
+                await interaction.followup.send(f"已重新載入 {cog_value} 模塊")
 
         except commands.ExtensionNotLoaded as e:
             pass
 
         except Exception as e:
             await interaction.followup.send(
-                f"重新載入模塊 {cog_name} 失敗，原因為: {e}", ephemeral=True
+                f"重新載入模塊 {cog_value} 失敗，原因為: {e}", ephemeral=True
             )
 
     @app_commands.command(description="同步指令")
@@ -90,14 +105,22 @@ class Main(Cog_Extension):
         class QuestionModal(Modal, title="輸入活動名稱"):
             name = TextInput(label="活動名稱")
 
+            def __init__(self, include_url: bool = False):
+                super().__init__()
+                self.url: Optional[TextInput] = None
+                if include_url:
+                    self.url = TextInput(label="直播網址")
+                    self.add_item(self.url)
+
             async def on_submit(self, interaction: discord.Interaction) -> None:
                 await interaction.response.defer()
 
         class StatusSelectView(View):
-            def __init__(self, bot: commands.Bot):
+            def __init__(self, bot: commands.Bot, data: DataClass):
                 super().__init__()
                 self.bot = bot
-                self.textInput = None
+                self.data = data
+                self.textInput: Optional[QuestionModal] = None
                 # self.activity_name = Select(options=[SelectOption(label="無")], row=2)
                 # self.add_item(self.activity_name)
 
@@ -110,7 +133,7 @@ class Main(Cog_Extension):
                     SelectOption(label="離線", value="offline"),
                 ],
             )
-            async def status(self, interaction: discord.Interaction, select: Select):
+            async def status(self, interaction: discord.Interaction, _: Select):
                 await interaction.response.defer()
 
             @discord.ui.select(
@@ -129,16 +152,12 @@ class Main(Cog_Extension):
 
                 # 沒有活動
                 if selected == "4":
+                    self.textInput = None
                     await interaction.response.defer()
                     return
 
                 # 活動輸入框
-                self.textInput = QuestionModal()
-
-                # 如果是直播,添加直播網址
-                if selected == "1":
-                    url = TextInput(label="直播網址")
-                    self.textInput.add_item(url)
+                self.textInput = QuestionModal(include_url=selected == "1")
 
                 # 顯示輸入框
                 await interaction.response.send_modal(self.textInput)
@@ -168,40 +187,39 @@ class Main(Cog_Extension):
                     else None
                 )
 
-                if type_ != 4:
+                if type_ != 4 and self.textInput is None:
+                    await interaction.response.send_message(
+                        "請先選擇活動並輸入活動名稱", ephemeral=True
+                    )
+                    return
+
+                if self.textInput is not None:
                     name = self.textInput.name.value
                 else:
                     name = None
 
-                if type_ == 1:
-                    url = self.textInput.children[1].value
+                if self.textInput is not None and self.textInput.url is not None:
+                    url = self.textInput.url.value
                 else:
                     url = None
 
+                status = discord.Status(self.status.values[0])
                 activity = discord.Activity(type=type_, name=name, url=url)
-                await self.bot.change_presence(
-                    status=self.status.values[0], activity=activity
-                )
+                await self.bot.change_presence(status=status, activity=activity)
                 logger.info(
                     f"已設置機器人狀態: {self.status.values[0]} {activity.type=} {activity.name=} {activity.url=}"
                 )
                 await interaction.response.edit_message(content="設定完成", view=None)
                 # self.bot.data.presence = {
-                Cog_Extension.data.presence = {
-                    "status": self.status.values[0],
+                self.data.presence = {
+                    "status": status.value,
                     "type": type_,
                     "name": name,
                     "url": url,
                 }
-                json.dump(
-                    asdict(Cog_Extension.data),
-                    DATA_FILE.open("w", encoding="utf8"),
-                    indent=2,
-                    ensure_ascii=False,
-                )
-                logger.info("已儲存機器人狀態到data.json")
+                self.data.save()
 
-        view = StatusSelectView(self.bot)
+        view = StatusSelectView(self.bot, self.data)
         await interaction.response.send_message(view=view, ephemeral=True)
 
     @app_commands.command(description="顯示ping值")
@@ -212,7 +230,9 @@ class Main(Cog_Extension):
 
     @app_commands.command(description="顯示幫助訊息")
     async def help(
-        self, interaction: discord.Interaction, cog_name: Literal["id", "omi"] = None
+        self,
+        interaction: discord.Interaction,
+        cog_name: Optional[Literal["id", "omi"]] = None,
     ):
         embed = discord.Embed(title="普通使用者可以用的指令")
         embed.set_author(

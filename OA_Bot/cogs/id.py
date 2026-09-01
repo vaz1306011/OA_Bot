@@ -86,6 +86,15 @@ class Id(Cog_Extension):
             channel (discord.TextChannel | discord.VoiceChannel | discord.StageChannel | discord.CategoryChannel | None, optional): 頻道(預設為當前頻道)
         """
         if channel is None:
+            assert isinstance(
+                interaction.channel,
+                (
+                    discord.TextChannel,
+                    discord.VoiceChannel,
+                    discord.StageChannel,
+                    discord.CategoryChannel,
+                ),
+            )
             channel = interaction.channel
         await interaction.response.send_message(
             f"{channel.name} 頻道的ID為: {channel.id}", ephemeral=True
@@ -98,6 +107,7 @@ class Id(Cog_Extension):
         Args:
             interaction (discord.Interaction): interaction
         """
+        assert interaction.guild is not None
         await interaction.response.send_message(
             f"{interaction.guild} 伺服器的ID為: {interaction.guild.id}", ephemeral=True
         )

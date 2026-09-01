@@ -26,6 +26,7 @@ class React(Cog_Extension):
             message (str): 要讓機器人說的話
         """
         await interaction.response.defer(ephemeral=True)
+        assert isinstance(interaction.channel, discord.abc.Messageable)
         await interaction.channel.send(message)
         await interaction.followup.send("已發送訊息")
 
@@ -121,7 +122,9 @@ class React(Cog_Extension):
                 super().__init__(timeout=timeout)
 
                 self.extra_participant_count = extra_participants_count
-                self.clicked_people = {member.id: None for member in participants}
+                self.clicked_people: dict[int, Optional[str]] = {
+                    member.id: None for member in participants
+                }
                 self.set_button()
 
             def set_button(self):
@@ -136,13 +139,18 @@ class React(Cog_Extension):
                     return False
 
                 async def check_result(interaction: discord.Interaction):
+                    assert interaction.guild is not None
+                    guild = interaction.guild
+
+                    def get_display_name(user_id: int) -> str:
+                        member = guild.get_member(user_id)
+                        assert member is not None
+                        return member.nick or member.name
+
                     logger.info(
                         re.sub(
                             r"\d+",
-                            lambda matched: interaction.guild.get_member(
-                                int(matched.group())
-                            ).nick
-                            or interaction.guild.get_member(int(matched.group())).name,
+                            lambda matched: get_display_name(int(matched.group())),
                             str(self.clicked_people),
                         )
                     )
@@ -151,6 +159,7 @@ class React(Cog_Extension):
                         self.extra_participant_count == 0
                         and None not in self.clicked_people.values()
                     ):
+                        assert interaction.message is not None
                         await interaction.message.delete()
 
                         choices = set(self.clicked_people.values())
@@ -168,6 +177,7 @@ class React(Cog_Extension):
                         description = ""
                         for user_id, choice in self.clicked_people.items():
                             user = interaction.guild.get_member(user_id)
+                            assert user is not None
                             description += f"{user.mention}：{choice}"
                             description += " 👑" if choice == winner else ""
                             description += "\n"
@@ -175,6 +185,7 @@ class React(Cog_Extension):
                         embed = discord.Embed(
                             title="猜拳結果", description=description.strip()
                         )
+                        assert isinstance(interaction.channel, discord.abc.Messageable)
                         await interaction.channel.send(embed=embed)
 
                 V = Button(label="剪刀", emoji="✌🏽")
@@ -198,19 +209,22 @@ class React(Cog_Extension):
 
         await interaction.response.defer()
         extra_participants_count = max(0, extra_participants_count)
-        members = {
-            member1,
-            member2,
-            member3,
-            member4,
-            member5,
-            member6,
-            member7,
-            member8,
-            member9,
-            member10,
+        members: set[discord.Member] = {
+            member
+            for member in (
+                member1,
+                member2,
+                member3,
+                member4,
+                member5,
+                member6,
+                member7,
+                member8,
+                member9,
+                member10,
+            )
+            if member is not None
         }
-        members.discard(None)
         members_count = len(members)
 
         if members_count + extra_participants_count < 2:
@@ -230,7 +244,7 @@ class React(Cog_Extension):
             )
         elif members_count > 0 and extra_participants_count == 0:
             content = f"{mentions_string}先別吵過來猜拳"
-        elif members_count == 0 and extra_participants_count > 0:
+        else:
             content = f"{extra_participants_count_string}先別吵過來猜拳"
 
         view = VOWView(extra_participants_count, members)
@@ -315,14 +329,19 @@ class React(Cog_Extension):
                     interaction (discord.Interaction): interaction
                 """
                 await interaction.response.defer()
+                assert interaction.guild is not None
+                guild = interaction.guild
+
+                def get_mention(user_id: int) -> str:
+                    member = guild.get_member(user_id)
+                    assert member is not None
+                    return member.mention
+
                 await interaction.followup.send(
                     embed=discord.Embed(
                         title="目前已投票:",
                         description="\n".join(
-                            (
-                                interaction.guild.get_member(user).mention
-                                for user in self.votes.keys()
-                            )
+                            (get_mention(user) for user in self.votes.keys())
                         ),
                     ),
                     ephemeral=True,
@@ -348,7 +367,10 @@ class React(Cog_Extension):
                     await interaction.followup.send("還沒有人投票", ephemeral=True)
                     return
                 vote_counts = Counter(self.votes.values())
-                all_options = [btn.label for btn in self.children[5:]]
+                all_options: list[str] = []
+                for btn in self.children[5:]:
+                    assert isinstance(btn, Button) and btn.label is not None
+                    all_options.append(btn.label)
                 for option in all_options:
                     vote_counts.setdefault(option, 0)
 
@@ -441,13 +463,15 @@ class React(Cog_Extension):
                         "請輸入小於選項數量的正整數", ephemeral=True
                     )
                 except Exception as e:
-                    await interaction.followup.send(e)
+                    await interaction.followup.send(str(e))
                 else:
                     if n <= 4 or n >= len(self._children):
                         await interaction.followup.send("超出範圍", ephemeral=True)
                         return
 
-                    removed = self._children.pop(n).label
+                    removed_item = self._children.pop(n)
+                    assert isinstance(removed_item, Button) and removed_item.label is not None
+                    removed = removed_item.label
                     self.votes = {
                         user: choice
                         for user, choice in self.votes.items()

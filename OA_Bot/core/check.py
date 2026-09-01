@@ -7,6 +7,7 @@ from discord.ext.commands import Context
 from OA_Bot.core.classes import Cog_Extension
 from OA_Bot.core.tools import ctx_send_red
 
+
 async def is_owner(msg: Context | discord.Interaction):
     if isinstance(msg, Context):
         if not msg.author.id in Cog_Extension.data.user_id.get("owner_ids", []):

@@ -1013,6 +1013,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "discord-py", extra = ["voice"] },
     { name = "openai" },
+    { name = "pydantic" },
     { name = "pynacl" },
     { name = "python-dotenv" },
     { name = "requests" },
@@ -1023,6 +1024,7 @@ dependencies = [
 requires-dist = [
     { name = "discord-py", extras = ["voice"], specifier = ">=2.7.1" },
     { name = "openai", specifier = ">=2.9.0" },
+    { name = "pydantic", specifier = ">=2.13.3" },
     { name = "pynacl", specifier = "<1.6" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "requests", specifier = ">=2.32.5" },
