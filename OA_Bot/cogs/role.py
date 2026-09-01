@@ -2,7 +2,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from OA_Bot.core.check import is_owner
 from OA_Bot.core.classes import Cog_Extension
 from OA_Bot.core.logger import logger
 
