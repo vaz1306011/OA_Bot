@@ -16,6 +16,7 @@ from OA_Bot.ui.status_select_view import StatusSelectView
 
 class Main(Cog_Extension):
     @commands.command()
+    @commands.check(is_owner)
     async def fsync(self, ctx: Context):
         synced = await self.bot.tree.sync()
         test_synced = 0
@@ -107,7 +108,9 @@ class Main(Cog_Extension):
         test_synced = 0
         for guild in TEST_GUILDS:
             test_synced += len(await self.bot.tree.sync(guild=guild))
-        await interaction.followup.send(f"已同步{len(synced)}條全域指令，{test_synced}條測試指令")
+        await interaction.followup.send(
+            f"已同步{len(synced)}條全域指令，{test_synced}條測試指令"
+        )
 
     @app_commands.command(description="設置機器人狀態")
     @test_only
