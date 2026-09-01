@@ -3,7 +3,7 @@ import functools
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Any, Dict, cast
+from typing import Any, Dict, Iterable, cast
 
 import discord
 import yt_dlp
@@ -220,7 +220,7 @@ class Music(Cog_Extension):
             raise ValueError("找不到音樂資料")
 
         if "entries" in info:
-            entries = info["entries"]
+            entries = list(cast(Iterable[Any], info["entries"]))
             if not entries or entries[0] is None:
                 raise ValueError("找不到音樂資料")
             info = entries[0]
