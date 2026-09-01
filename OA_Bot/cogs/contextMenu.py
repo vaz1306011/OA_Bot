@@ -4,10 +4,10 @@ import discord
 from discord import app_commands
 from discord.app_commands.errors import AppCommandError
 from discord.ext import commands
-from discord.ui import Modal, TextInput
 
 from OA_Bot.core.classes import Cog_Extension
 from OA_Bot.core.logger import logger
+from OA_Bot.ui.simple_input_modal import SimpleInputModal
 
 
 class ContextMenu(Cog_Extension):
@@ -66,19 +66,15 @@ class ContextMenu(Cog_Extension):
             message (discord.Message): 訊息
         """
 
-        class QuestionModal(Modal, title="選出幾個"):
-            answer = TextInput(label="數量", placeholder="1", max_length=2, default="1")
-
-            async def on_submit(self, interaction: discord.Interaction) -> None:
-                await interaction.response.defer()
-
         if message.author.bot:
             await interaction.response.send_message(
                 "不能選擇機器人的訊息", ephemeral=True
             )
             return
 
-        modal = QuestionModal()
+        modal = SimpleInputModal(
+            "選出幾個", "數量", placeholder="1", max_length=2, default="1"
+        )
         await interaction.response.send_modal(modal)
         await modal.wait()
 
