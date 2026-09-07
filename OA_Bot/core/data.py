@@ -7,9 +7,6 @@ from OA_Bot.core.paths import DATA_FILE
 class DataClass(BaseModel):
     presence: dict = {}
     user_id: dict = {}
-    guild: dict = {}
-    role: dict = {}
-    channel: dict = {}
     url: dict = {}
 
     @classmethod

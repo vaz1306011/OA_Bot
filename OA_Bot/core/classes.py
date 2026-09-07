@@ -5,9 +5,6 @@ from OA_Bot.core.data import DataClass
 
 class Cog_Extension(commands.Cog):
     data = DataClass.load()
-    # DATA = DATA
-    # USER_ID: dict = DATA["user_id"]
-    # URL: dict = DATA["url"]
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
