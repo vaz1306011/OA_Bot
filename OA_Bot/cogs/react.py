@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from OA_Bot.core.classes import Cog_Extension
 from OA_Bot.core.logger import logger
+from OA_Bot.ui.lolbo_view import LolboLaneSelectView
 from OA_Bot.ui.vote_view import VoteView
 from OA_Bot.ui.vow_view import VOWView
 
@@ -197,6 +198,18 @@ class React(Cog_Extension):
             only_creater_clean,
         )
         await interaction.response.send_message(embed=embed, view=view)
+
+    @app_commands.command()
+    async def lolbo(self, interaction: discord.Interaction):
+        """LOL募集
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
+        assert isinstance(interaction.user, discord.Member)
+
+        view = LolboLaneSelectView(interaction.user)
+        await interaction.response.send_message(view=view, ephemeral=True)
 
 
 async def setup(bot: commands.Bot):
