@@ -15,6 +15,7 @@ class SimpleInputModal(Modal):
         placeholder: Optional[str] = None,
         default: Optional[str] = None,
         max_length: Optional[int] = None,
+        required: bool = True,
     ):
         super().__init__(title=title)
         self.answer = TextInput(
@@ -22,6 +23,7 @@ class SimpleInputModal(Modal):
             placeholder=placeholder,
             default=default,
             max_length=max_length,
+            required=required,
         )
         self.add_item(self.answer)
 
