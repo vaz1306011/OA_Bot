@@ -22,7 +22,7 @@ JST = timezone(timedelta(hours=9))
 
 
 def _parse_clock_time(raw: Optional[str]) -> Optional[datetime]:
-    """HH:MM形式の時刻(日本時間)を、直後に訪れるその時刻のdatetimeに変換する。不正な値の場合はNoneを返す"""
+    """將HH:MM格式的時刻(日本時間)轉換成之後最接近該時刻的datetime，若格式不正確則回傳None"""
     if not raw:
         return None
 
@@ -39,7 +39,7 @@ def _parse_clock_time(raw: Optional[str]) -> Optional[datetime]:
 
 
 def _format_clock_input(dt: Optional[datetime]) -> Optional[str]:
-    """modalの初期値用に、datetimeをHH:MM形式(日本時間)へ変換する"""
+    """供modal預設值使用，將datetime轉換成HH:MM格式(日本時間)"""
     if dt is None:
         return None
     return dt.astimezone(JST).strftime("%H:%M")
@@ -72,6 +72,7 @@ class LolboView(View):
         self.deadline = deadline
         self.message_text = message_text
         self.filled: dict[str, int] = {}
+        self.notify_subscribers: set[int] = set()
         self.closed = False
         self.finalized = False
         self.message: Optional[discord.Message] = None
@@ -107,7 +108,7 @@ class LolboView(View):
             self._finalize_task = asyncio.create_task(self.__finalize())
 
     async def __finalize(self):
-        """募集終了後、一定時間再開されなければボタンを消して終了する"""
+        """募集結束後，若經過一段時間仍未重新開啟，則移除按鈕並結束"""
         await asyncio.sleep(FINALIZE_GRACE.total_seconds())
         if not self.closed:
             return
@@ -134,6 +135,10 @@ class LolboView(View):
             close_btn = Button(label="募集終了", style=discord.ButtonStyle.danger)
             close_btn.callback = self.__on_close
             self.add_item(close_btn)
+
+        notify_btn = Button(label="通知ON/OFF", style=discord.ButtonStyle.secondary)
+        notify_btn.callback = self.__on_toggle_notify
+        self.add_item(notify_btn)
 
     def build_embed(self) -> discord.Embed:
         title = f"LOL {MODE_LABELS[self.mode]}募集" if self.mode else "LOL募集"
@@ -166,12 +171,70 @@ class LolboView(View):
         return embed
 
     async def refresh(self):
-        """公開募集訊息重新整理"""
+        """重新整理公開的募集訊息"""
         assert self.message is not None
         await self.message.edit(embed=self.build_embed(), view=self)
 
+    async def notify_lane_change(
+        self,
+        client: discord.Client,
+        actor: discord.User | discord.Member,
+        lane: str,
+        joined: bool,
+    ):
+        """對已開啟通知的使用者，透過DM通知位置的變更
+
+        Args:
+            client (discord.Client): 用於取得使用者的Bot client
+            actor (discord.User | discord.Member): 進行變更的成員
+            lane (str): 對應的位置
+            joined (bool): 參加為True，辭退為False
+        """
+        recipients = self.notify_subscribers - {actor.id}
+        if not recipients:
+            return
+
+        assert self.message is not None
+        title = f"{lane}に参加しました" if joined else f"{lane}を辞退しました"
+        embed = discord.Embed(
+            title=title,
+            url=self.message.jump_url,
+            color=discord.Color.brand_green() if joined else discord.Color.greyple(),
+        )
+        embed.set_author(
+            name=str(actor.display_name), icon_url=actor.display_avatar.url
+        )
+        embed.add_field(name="発起人", value=self.author.mention)
+        embed.add_field(name="募集人数", value=f"{len(self.filled)}/{len(self.lanes)}")
+
+        for user_id in recipients:
+            user = client.get_user(user_id)
+            if user is None:
+                try:
+                    user = await client.fetch_user(user_id)
+                except discord.HTTPException:
+                    continue
+            try:
+                await user.send(embed=embed)
+            except discord.HTTPException:
+                pass
+
+    async def __on_toggle_notify(self, interaction: discord.Interaction):
+        """通知ON/OFF按鈕的callback
+
+        Args:
+            interaction (discord.Interaction): interaction
+        """
+        if interaction.user.id in self.notify_subscribers:
+            self.notify_subscribers.discard(interaction.user.id)
+            content = "レーン変更通知をOFFにしました"
+        else:
+            self.notify_subscribers.add(interaction.user.id)
+            content = "レーン変更通知をONにしました"
+        await interaction.response.send_message(content, ephemeral=True)
+
     async def __on_participate(self, interaction: discord.Interaction):
-        """参加按鈕callback，開啟位置選單
+        """參加按鈕callback，開啟位置選單
 
         Args:
             interaction (discord.Interaction): interaction
@@ -188,7 +251,7 @@ class LolboView(View):
         )
 
     async def __on_edit(self, interaction: discord.Interaction):
-        """編集按鈕callback
+        """編輯按鈕callback
 
         Args:
             interaction (discord.Interaction): interaction
@@ -287,6 +350,9 @@ class LolboJoinSelectView(View):
             del self.parent.filled[joined_lane]
             await interaction.response.edit_message(content="辞退しました", view=None)
             await self.parent.refresh()
+            await self.parent.notify_lane_change(
+                interaction.client, interaction.user, joined_lane, joined=False
+            )
             return
 
         if choice in self.parent.filled:
@@ -304,6 +370,9 @@ class LolboJoinSelectView(View):
             content=f"{choice}に参加しました", view=None
         )
         await self.parent.refresh()
+        await self.parent.notify_lane_change(
+            interaction.client, interaction.user, choice, joined=True
+        )
 
 
 class LolboEditView(View):
@@ -340,7 +409,7 @@ class LolboEditView(View):
         await interaction.response.defer()
 
     async def __on_confirm(self, interaction: discord.Interaction):
-        """次へ按鈕callback，開啟時間與訊息編輯用modal
+        """下一步按鈕callback，開啟時間與訊息編輯用modal
 
         Args:
             interaction (discord.Interaction): interaction
@@ -457,7 +526,7 @@ class LolboLaneSelectView(View):
         self.add_item(confirm_btn)
 
     async def __on_select_mode(self, interaction: discord.Interaction):
-        """モード選單callback
+        """模式選單callback
 
         Args:
             interaction (discord.Interaction): interaction
@@ -476,7 +545,7 @@ class LolboLaneSelectView(View):
         await interaction.response.defer()
 
     async def __on_confirm(self, interaction: discord.Interaction):
-        """次へ按鈕callback，開啟時間與訊息設定用modal
+        """下一步按鈕callback，開啟時間與訊息設定用modal
 
         Args:
             interaction (discord.Interaction): interaction
