@@ -579,7 +579,9 @@ class LolboLaneSelectView(View):
             message_text,
         )
         assert isinstance(interaction.channel, discord.abc.Messageable)
-        message = await interaction.channel.send(embed=view.build_embed(), view=view)
+        message = await interaction.channel.send(
+            content="@everyone", embed=view.build_embed(), view=view
+        )
         view.message = message
 
         if invalid_fields:
