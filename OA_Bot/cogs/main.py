@@ -120,12 +120,16 @@ class Main(Cog_Extension):
         await interaction.response.send_message(view=view, ephemeral=True)
 
     @app_commands.command(description="顯示ping值")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ping(self, interaction: discord.Interaction):
         await interaction.response.send_message(
             f"{round(self.bot.latency*1000)}毫秒", ephemeral=True
         )
 
     @app_commands.command(description="顯示幫助訊息")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def help(
         self,
         interaction: discord.Interaction,

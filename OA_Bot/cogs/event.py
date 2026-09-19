@@ -80,7 +80,14 @@ class Event(Cog_Extension):
 
         openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-    omi_group = app_commands.Group(name="omi", description="關鍵字檢測指令群組")
+    omi_group = app_commands.Group(
+        name="omi",
+        description="關鍵字檢測指令群組",
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=False),
+        allowed_contexts=app_commands.AppCommandContext(
+            guild=True, dm_channel=False, private_channel=False
+        ),
+    )
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):

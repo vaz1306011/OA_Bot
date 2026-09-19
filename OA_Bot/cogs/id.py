@@ -12,7 +12,12 @@ class Id(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
         find_message_id = discord.app_commands.ContextMenu(
-            name="查詢訊息id", callback=self.message
+            name="查詢訊息id",
+            callback=self.message,
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
+            allowed_contexts=app_commands.AppCommandContext(
+                guild=True, dm_channel=True, private_channel=True
+            ),
         )
         self.bot.tree.add_command(find_message_id)
 
@@ -32,7 +37,14 @@ class Id(Cog_Extension):
             f"此訊息的ID為: {message.id}", ephemeral=True
         )
 
-    id_group = app_commands.Group(name="id", description="id指令群組")
+    id_group = app_commands.Group(
+        name="id",
+        description="id指令群組",
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=True),
+        allowed_contexts=app_commands.AppCommandContext(
+            guild=True, dm_channel=False, private_channel=False
+        ),
+    )
 
     @id_group.command()
     async def member(

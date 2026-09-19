@@ -14,12 +14,22 @@ class ContextMenu(Cog_Extension):
     def __init__(self, bot: commands.Bot):
         super().__init__(bot)
         self.clear_after_menu = discord.app_commands.ContextMenu(
-            name="清理之後的訊息", callback=self.clear_after
+            name="清理之後的訊息",
+            callback=self.clear_after,
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=False),
+            allowed_contexts=app_commands.AppCommandContext(
+                guild=True, dm_channel=False, private_channel=False
+            ),
         )
         self.clear_after_menu.error(self.clear_after_error)
 
         self.choose_menu = discord.app_commands.ContextMenu(
-            name="隨機選擇", callback=self.choose
+            name="隨機選擇",
+            callback=self.choose,
+            allowed_installs=app_commands.AppInstallationType(guild=True, user=False),
+            allowed_contexts=app_commands.AppCommandContext(
+                guild=True, dm_channel=False, private_channel=False
+            ),
         )
 
     async def cog_load(self) -> None:

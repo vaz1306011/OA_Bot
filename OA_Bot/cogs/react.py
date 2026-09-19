@@ -17,6 +17,8 @@ class React(Cog_Extension):
         super().__init__(bot)
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=False)
     async def say(self, interaction: discord.Interaction, message: str):
         """讓機器人說話
 
@@ -30,6 +32,8 @@ class React(Cog_Extension):
         await interaction.followup.send("已發送訊息")
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def ranobe(self, interaction: discord.Interaction):
         """拉諾亞魔法大學的圖書館
 
@@ -51,6 +55,8 @@ class React(Cog_Extension):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def syukudai(self, interaction: discord.Interaction):
         """宿題
 
@@ -69,6 +75,8 @@ class React(Cog_Extension):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=False)
     async def vow(
         self,
         interaction: discord.Interaction,
@@ -149,6 +157,8 @@ class React(Cog_Extension):
         await interaction.followup.send(content, view=view)
 
     @app_commands.command(description="骰骰子")
+    @app_commands.allowed_installs(guilds=True, users=True)
+    @app_commands.allowed_contexts(guilds=True, dms=True, private_channels=True)
     async def roll(
         self,
         interaction: discord.Interaction,
@@ -172,6 +182,8 @@ class React(Cog_Extension):
         )
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=False)
     async def vote(
         self,
         interaction: discord.Interaction,
@@ -200,6 +212,8 @@ class React(Cog_Extension):
         await interaction.response.send_message(embed=embed, view=view)
 
     @app_commands.command()
+    @app_commands.allowed_installs(guilds=True, users=False)
+    @app_commands.allowed_contexts(guilds=True, dms=False, private_channels=False)
     async def lolbo(self, interaction: discord.Interaction):
         """LOL募集
 

@@ -262,7 +262,14 @@ class Music(Cog_Extension):
             content=f"[**{music.name}**]({music.webpage_url}) 已加入到待播清單中"
         )
 
-    music_group = app_commands.Group(name="music", description="music指令群組")
+    music_group = app_commands.Group(
+        name="music",
+        description="music指令群組",
+        allowed_installs=app_commands.AppInstallationType(guild=True, user=False),
+        allowed_contexts=app_commands.AppCommandContext(
+            guild=True, dm_channel=False, private_channel=False
+        ),
+    )
 
     @music_group.command()
     async def gui(self, interaction: discord.Interaction):
